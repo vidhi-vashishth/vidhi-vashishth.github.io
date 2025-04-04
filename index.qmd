@@ -1,0 +1,15 @@
+---
+title: "Vidhi Vashishth"
+image: "images/myimage.JPG"
+about:
+    template: jolla
+    links:
+      - icon: envelope
+        href: mailto:vivashishth@ucsd.edu
+      - icon: linkedin
+        href: https://www.linkedin.com/in/vidhi-vashishth/
+---
+
+Here is a paragraph about me: Fighting for my job everyday against AI.
+
+To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
