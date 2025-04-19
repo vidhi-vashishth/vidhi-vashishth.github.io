@@ -78,9 +78,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: [{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-title','listing-author','listing-date','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: [],
+      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -202,6 +202,104 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
+
+<div class="g-col-1" data-index="0" data-listing-file-modified-sort="1745084865099" data-listing-reading-time-sort="1" data-listing-word-count-sort="13">
+<a href="./blog/project1/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">This is Project 1</h5>
+
+<div class="card-text listing-description delink">I cleaned some data.</div>
+
+<div class="card-attribution card-text-small start">
+<div class="listing-author"></div>
+
+</div>
+
+</div>
+
+</div></a></div>
+
+<div class="g-col-1" data-index="1" data-listing-file-modified-sort="1745084981955">
+<a href="./blog/homework1/homework1_solns.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+
+<div class="card-body post-contents">
+
+<div class="card-text listing-description delink"></div>
+
+<div class="card-attribution card-text-small start">
+<div class="listing-author"></div>
+
+</div>
+
+</div>
+
+</div></a></div>
+
+<div class="g-col-1" data-index="2" data-listing-file-modified-sort="1745086568425" data-listing-reading-time-sort="15" data-listing-word-count-sort="2861">
+<a href="./blog/homework1/hw1_code.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+
+<p class="card-img-top"><img src="blog/homework1/hw1_code_files/figure-html/cell-4-output-1.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">Jupyter Notebook for HW1</h5>
+
+<div class="card-text listing-description delink">April 19th, 2024</div>
+
+<div class="card-attribution card-text-small start">
+<div class="listing-author"></div>
+
+</div>
+
+</div>
+
+</div></a></div>
+
+<div class="g-col-1" data-index="3" data-listing-file-modified-sort="1744081732631">
+<a href="./blog/project2/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+
+<div class="card-body post-contents">
+
+<div class="card-text listing-description delink"></div>
+
+<div class="card-attribution card-text-small start">
+<div class="listing-author"></div>
+
+</div>
+
+</div>
+
+</div></a></div>
+
+<div class="g-col-1" data-index="4" data-listing-date-sort="NaN" data-listing-file-modified-sort="1745086630016" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="46" data-listing-word-count-sort="9131">
+<a href="./blog/homework1/hw1_questions.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+
+<p class="card-img-top"><img src="blog/homework1/hw1_questions_files/figure-html/treatment-distribution-output-1.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">A Replication of Karlan and List (2007)</h5>
+
+<div class="card-text listing-description delink">Dean Karlan at Yale and John List at the University of Chicago conducted a field experiment to test the effectiveness of different fundraising letters. They sent out 50,000…<em></em></div>
+
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">Vidhi Vashishth</div>
+<div class="listing-date">Invalid Date</div>
+</div>
+
+</div>
+
+</div></a></div>
 
 </div>
 <div class="listing-no-matching d-none">

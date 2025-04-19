@@ -10,5 +10,26 @@
   },
   "blog.qmd": {
     "blog.html": "d069bf81"
+  },
+  "blog/project1/index.qmd": {
+    "index.html": "edde2a11"
+  },
+  "blog/project2/index.qmd": {
+    "index.html": "2c59b8b0"
+  },
+  "hw1_questions.qmd": {
+    "hw1_questions.html": "b20654f9"
+  },
+  "hw1_code.ipynb": {
+    "hw1_code.html": "d400ccae"
+  },
+  "blog/homework1/hw1_questions.qmd": {
+    "hw1_questions.html": "2717edd3"
+  },
+  "blog/homework1/homework1_solns.qmd": {
+    "homework1_solns.html": "ac4e80e2"
+  },
+  "blog/homework1/hw1_code.ipynb": {
+    "hw1_code.html": "893d6a33"
   }
 }

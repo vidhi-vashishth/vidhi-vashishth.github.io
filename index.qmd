@@ -11,5 +11,3 @@ about:
 ---
 
 Here is a paragraph about me: Fighting for my job everyday against AI.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
