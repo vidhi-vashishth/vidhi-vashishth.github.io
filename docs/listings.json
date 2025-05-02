@@ -2,10 +2,12 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/blog/homework2/Codefilehw2.html",
       "/blog/project1/index.html",
       "/blog/homework1/homework1_solns.html",
       "/blog/homework1/hw1_code.html",
       "/blog/project2/index.html",
+      "/blog/homework2/hw2_questions.html",
       "/blog/homework1/hw1_questions.html"
     ]
   }

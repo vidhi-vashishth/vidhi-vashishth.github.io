@@ -1,7 +1,7 @@
 ---
 title: "A Replication of Karlan and List (2007)"
 author: "Vidhi Vashishth"
-date: "April 19th, 2025"
+date: April 19th, 2025
 callout-appearance: minimal # this hides the blue "i" icon on .callout-notes
 ---
 
