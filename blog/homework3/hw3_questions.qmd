@@ -1,6 +1,6 @@
 ---
 title: "Multinomial Logit Model"
-author: "Your Name"
+author: "Vidhi Vashishth"
 date: today
 ---
 
