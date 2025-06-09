@@ -18,32 +18,7 @@
         "\n",
         "In this analysis, I implement a latent-class multinomial logit (MNL) model on yogurt purchase data. The latent-class approach allows us to identify distinct consumer segments with different preferences, rather than assuming all consumers have identical preferences as in the standard MNL model."
       ],
-      "id": "86e4f6fc"
-    },
-    {
-      "cell_type": "code",
-      "metadata": {},
-      "source": [
-        "#| label: check-dependencies\n",
-        "#| echo: true\n",
-        "\n",
-        "import sys\n",
-        "import subprocess\n",
-        "\n",
-        "# Check for required packages\n",
-        "required_packages = ['scipy', 'sklearn', 'pandas', 'numpy', 'matplotlib', 'seaborn']\n",
-        "\n",
-        "for package in required_packages:\n",
-        "    try:\n",
-        "        __import__(package)\n",
-        "        print(f\"✓ {package} is installed\")\n",
-        "    except ImportError:\n",
-        "        print(f\"✗ {package} is not installed. Installing...\")\n",
-        "        subprocess.check_call([sys.executable, \"-m\", \"pip\", \"install\", package])"
-      ],
-      "id": "check-dependencies",
-      "execution_count": null,
-      "outputs": []
+      "id": "604af294"
     },
     {
       "cell_type": "code",
@@ -70,9 +45,9 @@
       "metadata": {},
       "source": [
         "# Load the yogurt dataset\n",
-        "yogurt_data = pd.read_csv('/home/jovyan/vvwebsite/blog/homework4/yogurt_data.csv')"
+        "yogurt = pd.read_csv('yogurt_data.csv')"
       ],
-      "id": "a95875d5",
+      "id": "19920610",
       "execution_count": null,
       "outputs": []
     },
@@ -81,14 +56,14 @@
       "metadata": {},
       "source": [
         "# Display basic information about the dataset\n",
-        "print(\"Dataset shape:\", yogurt_data.shape)\n",
+        "print(\"Dataset shape:\", yogurt.shape)\n",
         "print(\"\\nFirst few rows:\")\n",
-        "print(yogurt_data.head())\n",
+        "print(yogurt.head())\n",
         "print(\"\\nColumn names:\")\n",
-        "print(yogurt_data.columns.tolist())\n",
+        "print(yogurt.columns.tolist())\n",
         "\n",
         "# Analyze purchase patterns\n",
-        "purchase_counts = (yogurt_data[['y1', 'y2', 'y3', 'y4']].sum())\n",
+        "purchase_counts = (yogurt[['y1', 'y2', 'y3', 'y4']].sum())\n",
         "print(\"\\nPurchase counts by product:\")\n",
         "print(purchase_counts)\n",
         "\n",
@@ -103,7 +78,7 @@
         "plt.tight_layout()\n",
         "plt.show()"
       ],
-      "id": "f013a7fc",
+      "id": "306b7418",
       "execution_count": null,
       "outputs": []
     },
@@ -141,13 +116,13 @@
         "    return pd.DataFrame(long_data)\n",
         "\n",
         "# Reshape the data\n",
-        "long_data = reshape_yogurt_data(yogurt_data)\n",
+        "long_data = reshape_yogurt_data(yogurt)\n",
         "print(\"\\nReshaped data shape:\", long_data.shape)\n",
         "print(\"\\nFirst 8 rows (2 choice occasions):\")\n",
         "print(long_data.head(8))\n",
         "\n",
         "# Verify reshaping\n",
-        "n_choices = yogurt_data.shape[0]\n",
+        "n_choices = yogurt.shape[0]\n",
         "n_alternatives = 4\n",
         "print(f\"\\nOriginal data: {n_choices} choice occasions\")\n",
         "print(f\"Long format: {long_data.shape[0]} rows ({n_choices} × {n_alternatives} alternatives)\")"
@@ -362,7 +337,7 @@
         "\n",
         "# Estimate latent-class models for different numbers of classes\n",
         "results = {}\n",
-        "n_choices = len(yogurt_data)\n",
+        "n_choices = len(yogurt)\n",
         "\n",
         "print(\"\\n### Estimating Latent-Class Models ###\")\n",
         "for n_classes in [2, 3, 4]:  # Limiting to fewer classes for faster computation\n",
@@ -587,7 +562,7 @@
         "## 2a. K Nearest Neighbors\n",
         "In this section, I implement the K-Nearest Neighbors (KNN) algorithm from scratch and evaluate its performance on a synthetic binary classification dataset with a non-linear decision boundary. KNN is a simple yet powerful non-parametric algorithm that makes predictions based on the majority class of the k nearest neighbors in the feature space."
       ],
-      "id": "ecf8a09a"
+      "id": "15583fbc"
     },
     {
       "cell_type": "code",

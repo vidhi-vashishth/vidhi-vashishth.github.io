@@ -28,7 +28,7 @@ warnings.filterwarnings('ignore')
 
 ```{python}
 # Load the yogurt dataset
-yogurt = pd.read_csv('blog/homework4/hw4_questions_files/yogurt_data.csv')
+yogurt = pd.read_csv('yogurt_data.csv')
 ```
 
 ```{python}
