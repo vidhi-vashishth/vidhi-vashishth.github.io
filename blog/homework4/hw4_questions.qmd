@@ -43,10 +43,14 @@ from scipy.special import logsumexp
 from scipy.stats import multivariate_normal
 import warnings
 warnings.filterwarnings('ignore')
+```
 
+```{python}
 # Load the yogurt dataset
 yogurt_data = pd.read_csv('/home/jovyan/vvwebsite/blog/homework4/yogurt_data.csv')
+```
 
+```{python}
 # Display basic information about the dataset
 print("Dataset shape:", yogurt_data.shape)
 print("\nFirst few rows:")
