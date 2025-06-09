@@ -18,7 +18,7 @@
         "\n",
         "In this analysis, I implement a latent-class multinomial logit (MNL) model on yogurt purchase data. The latent-class approach allows us to identify distinct consumer segments with different preferences, rather than assuming all consumers have identical preferences as in the standard MNL model."
       ],
-      "id": "24366e74"
+      "id": "86e4f6fc"
     },
     {
       "cell_type": "code",
@@ -59,11 +59,27 @@
         "from scipy.special import logsumexp\n",
         "from scipy.stats import multivariate_normal\n",
         "import warnings\n",
-        "warnings.filterwarnings('ignore')\n",
-        "\n",
+        "warnings.filterwarnings('ignore')"
+      ],
+      "id": "data-loading-and-exploration",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
         "# Load the yogurt dataset\n",
-        "yogurt_data = pd.read_csv('/home/jovyan/vvwebsite/blog/homework4/yogurt_data.csv')\n",
-        "\n",
+        "yogurt_data = pd.read_csv('/home/jovyan/vvwebsite/blog/homework4/yogurt_data.csv')"
+      ],
+      "id": "a95875d5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
         "# Display basic information about the dataset\n",
         "print(\"Dataset shape:\", yogurt_data.shape)\n",
         "print(\"\\nFirst few rows:\")\n",
@@ -87,7 +103,7 @@
         "plt.tight_layout()\n",
         "plt.show()"
       ],
-      "id": "data-loading-and-exploration",
+      "id": "f013a7fc",
       "execution_count": null,
       "outputs": []
     },
@@ -571,7 +587,7 @@
         "## 2a. K Nearest Neighbors\n",
         "In this section, I implement the K-Nearest Neighbors (KNN) algorithm from scratch and evaluate its performance on a synthetic binary classification dataset with a non-linear decision boundary. KNN is a simple yet powerful non-parametric algorithm that makes predictions based on the majority class of the k nearest neighbors in the feature space."
       ],
-      "id": "ef50caae"
+      "id": "ecf8a09a"
     },
     {
       "cell_type": "code",
