@@ -51,8 +51,6 @@ plt.show()
 ```
 
 
-_The data provides anonymized consumer identifiers (`id`), a vector indicating the chosen product (`y1`:`y4`), a vector indicating if any products were "featured" in the store as a form of advertising (`f1`:`f4`), and the products' prices in price-per-ounce (`p1`:`p4`). For example, consumer 1 purchased yogurt 4 at a price of 0.079/oz and none of the yogurts were featured/advertised at the time of consumer 1's purchase.  Consumers 2 through 7 each bought yogurt 2, etc. You may want to reshape the data from its current "wide" format into a "long" format._
-
 ### Data Reshaping from Wide to long format
 ```{python}
 def reshape_yogurt_data(df):
@@ -94,8 +92,6 @@ n_alternatives = 4
 print(f"\nOriginal data: {n_choices} choice occasions")
 print(f"Long format: {long_data.shape[0]} rows ({n_choices} × {n_alternatives} alternatives)")
 ```
-
-_todo: Fit the standard MNL model on these data.  Then fit the latent-class MNL on these data separately for 2, 3, 4, and 5 latent classes._
 
 ### Standard MNL model implementation
 ```{python}
@@ -313,8 +309,6 @@ for n_classes in [2, 3, 4, 5]:
     print(f"  BIC: {bic:.2f}")
     print(f"  Class sizes: {model.class_probs.round(3)}")
 ```
-
-_todo: How many classes are suggested by the $BIC = -2*\ell_n  + k*log(n)$? (where $\ell_n$ is the log-likelihood, $n$ is the sample size, and $k$ is the number of parameters.) The Bayesian-Schwarz Information Criterion [link](https://en.wikipedia.org/wiki/Bayesian_information_criterion) is a metric that assess the benefit of a better log likelihood at the expense of additional parameters to estimate -- akin to the adjusted R-squared for the linear regression model. Note, that a **lower** BIC indicates a better model fit, accounting for the number of parameters in the model._
 
 ### Model selection using BIC
 ```{python}
