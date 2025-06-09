@@ -13,25 +13,6 @@ execute:
 In this analysis, I implement a latent-class multinomial logit (MNL) model on yogurt purchase data. The latent-class approach allows us to identify distinct consumer segments with different preferences, rather than assuming all consumers have identical preferences as in the standard MNL model.
 
 ```{python}
-#| label: check-dependencies
-#| echo: true
-
-import sys
-import subprocess
-
-# Check for required packages
-required_packages = ['scipy', 'sklearn', 'pandas', 'numpy', 'matplotlib', 'seaborn']
-
-for package in required_packages:
-    try:
-        __import__(package)
-        print(f"✓ {package} is installed")
-    except ImportError:
-        print(f"✗ {package} is not installed. Installing...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-```
-
-```{python}
 #| label: data-loading-and-exploration
 #| echo: true
 import pandas as pd
@@ -47,19 +28,19 @@ warnings.filterwarnings('ignore')
 
 ```{python}
 # Load the yogurt dataset
-yogurt_data = pd.read_csv('/home/jovyan/vvwebsite/blog/homework4/yogurt_data.csv')
+yogurt = pd.read_csv('blog/homework4/hw4_questions_files/yogurt_data.csv')
 ```
 
 ```{python}
 # Display basic information about the dataset
-print("Dataset shape:", yogurt_data.shape)
+print("Dataset shape:", yogurt.shape)
 print("\nFirst few rows:")
-print(yogurt_data.head())
+print(yogurt.head())
 print("\nColumn names:")
-print(yogurt_data.columns.tolist())
+print(yogurt.columns.tolist())
 
 # Analyze purchase patterns
-purchase_counts = (yogurt_data[['y1', 'y2', 'y3', 'y4']].sum())
+purchase_counts = (yogurt[['y1', 'y2', 'y3', 'y4']].sum())
 print("\nPurchase counts by product:")
 print(purchase_counts)
 
@@ -106,13 +87,13 @@ def reshape_yogurt_data(df):
     return pd.DataFrame(long_data)
 
 # Reshape the data
-long_data = reshape_yogurt_data(yogurt_data)
+long_data = reshape_yogurt_data(yogurt)
 print("\nReshaped data shape:", long_data.shape)
 print("\nFirst 8 rows (2 choice occasions):")
 print(long_data.head(8))
 
 # Verify reshaping
-n_choices = yogurt_data.shape[0]
+n_choices = yogurt.shape[0]
 n_alternatives = 4
 print(f"\nOriginal data: {n_choices} choice occasions")
 print(f"Long format: {long_data.shape[0]} rows ({n_choices} × {n_alternatives} alternatives)")
@@ -309,7 +290,7 @@ class LatentClassMNL:
 
 # Estimate latent-class models for different numbers of classes
 results = {}
-n_choices = len(yogurt_data)
+n_choices = len(yogurt)
 
 print("\n### Estimating Latent-Class Models ###")
 for n_classes in [2, 3, 4]:  # Limiting to fewer classes for faster computation
