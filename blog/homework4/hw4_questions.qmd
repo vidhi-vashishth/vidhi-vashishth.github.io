@@ -1,0 +1,836 @@
+---
+title: "Machine Learning"
+author: "Vidhi Vashishth"
+date: today
+---
+
+## 1b. Latent-Class MNL
+
+### Introduction
+
+In this analysis, I implement a latent-class multinomial logit (MNL) model on yogurt purchase data. The latent-class approach allows us to identify distinct consumer segments with different preferences, rather than assuming all consumers have identical preferences as in the standard MNL model.
+
+### Data Loading and Exploration
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.optimize import minimize
+from scipy.special import logsumexp
+from scipy.stats import multivariate_normal
+import warnings
+warnings.filterwarnings('ignore')
+
+# Load the yogurt dataset
+yogurt_data = pd.read_csv('yogurt_data.csv')
+
+# Display basic information about the dataset
+print("Dataset shape:", yogurt_data.shape)
+print("\nFirst few rows:")
+print(yogurt_data.head())
+print("\nColumn names:")
+print(yogurt_data.columns.tolist())
+
+# Analyze purchase patterns
+purchase_counts = (yogurt_data[['y1', 'y2', 'y3', 'y4']].sum())
+print("\nPurchase counts by product:")
+print(purchase_counts)
+
+# Visualize purchase distribution
+plt.figure(figsize=(8, 5))
+purchase_counts.plot(kind='bar', color='skyblue', edgecolor='black')
+plt.title('Distribution of Yogurt Purchases by Product', fontsize=14)
+plt.xlabel('Product')
+plt.ylabel('Number of Purchases')
+plt.xticks(rotation=0)
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+
+_The data provides anonymized consumer identifiers (`id`), a vector indicating the chosen product (`y1`:`y4`), a vector indicating if any products were "featured" in the store as a form of advertising (`f1`:`f4`), and the products' prices in price-per-ounce (`p1`:`p4`). For example, consumer 1 purchased yogurt 4 at a price of 0.079/oz and none of the yogurts were featured/advertised at the time of consumer 1's purchase.  Consumers 2 through 7 each bought yogurt 2, etc. You may want to reshape the data from its current "wide" format into a "long" format._
+
+### Data Reshaping from Wide to long format
+```{python}
+def reshape_yogurt_data(df):
+    """
+    Reshape yogurt data from wide to long format.
+    Each row becomes one alternative for one choice occasion.
+    """
+    long_data = []
+    
+    for idx, row in df.iterrows():
+        consumer_id = row['id']
+        
+        # For each alternative (yogurt 1-4)
+        for j in range(1, 5):
+            choice = row[f'y{j}']
+            feature = row[f'f{j}']
+            price = row[f'p{j}']
+            
+            long_data.append({
+                'id': consumer_id,
+                'alternative': j,
+                'choice': choice,
+                'feature': feature,
+                'price': price,
+                'choice_id': idx  # to track choice occasions
+            })
+    
+    return pd.DataFrame(long_data)
+
+# Reshape the data
+long_data = reshape_yogurt_data(yogurt_data)
+print("\nReshaped data shape:", long_data.shape)
+print("\nFirst 8 rows (2 choice occasions):")
+print(long_data.head(8))
+
+# Verify reshaping
+n_choices = yogurt_data.shape[0]
+n_alternatives = 4
+print(f"\nOriginal data: {n_choices} choice occasions")
+print(f"Long format: {long_data.shape[0]} rows ({n_choices} × {n_alternatives} alternatives)")
+```
+
+_todo: Fit the standard MNL model on these data.  Then fit the latent-class MNL on these data separately for 2, 3, 4, and 5 latent classes._
+
+### Standard MNL model implementation
+```{python}
+def mnl_log_likelihood(params, X, y, n_alts=4):
+    """
+    Calculate log-likelihood for standard MNL model.
+    
+    Parameters:
+    - params: array of parameters [price_coef, feature_coef]
+    - X: feature matrix (n_obs × n_features)
+    - y: choice indicators (n_obs,)
+    - n_alts: number of alternatives per choice occasion
+    """
+    beta_price = params[0]
+    beta_feature = params[1]
+    
+    n_obs = len(y)
+    n_choices = n_obs // n_alts
+    
+    ll = 0
+    for i in range(n_choices):
+        start_idx = i * n_alts
+        end_idx = (i + 1) * n_alts
+        
+        # Calculate utilities for all alternatives in this choice set
+        utilities = (beta_price * X[start_idx:end_idx, 0] + 
+                    beta_feature * X[start_idx:end_idx, 1])
+        
+        # Find which alternative was chosen
+        choice_idx = np.where(y[start_idx:end_idx] == 1)[0][0]
+        
+        # Log-likelihood contribution
+        ll += utilities[choice_idx] - logsumexp(utilities)
+    
+    return -ll  # Return negative for minimization
+
+# Prepare data for MNL estimation
+X = long_data[['price', 'feature']].values
+y = long_data['choice'].values
+
+# Estimate standard MNL
+init_params = [0, 0]  # Initial values for price and feature coefficients
+result_mnl = minimize(mnl_log_likelihood, init_params, args=(X, y), 
+                     method='BFGS', options={'disp': False})
+
+print("\n### Standard MNL Results ###")
+print(f"Price coefficient: {result_mnl.x[0]:.4f}")
+print(f"Feature coefficient: {result_mnl.x[1]:.4f}")
+print(f"Log-likelihood: {-result_mnl.fun:.4f}")
+```
+
+### Latent-class MNL implementation
+```{python}
+class LatentClassMNL:
+    """
+    Latent-class multinomial logit model using EM algorithm.
+    """
+    
+    def __init__(self, n_classes, n_alts=4, max_iter=100, tol=1e-6):
+        self.n_classes = n_classes
+        self.n_alts = n_alts
+        self.max_iter = max_iter
+        self.tol = tol
+        self.fitted = False
+        
+    def initialize_params(self, n_features):
+        """Initialize parameters randomly."""
+        # Class-specific choice parameters
+        self.betas = np.random.randn(self.n_classes, n_features)
+        
+        # Class membership probabilities (equal initially)
+        self.class_probs = np.ones(self.n_classes) / self.n_classes
+        
+    def e_step(self, X, y, n_choices):
+        """
+        E-step: Calculate posterior class membership probabilities.
+        """
+        posteriors = np.zeros((n_choices, self.n_classes))
+        
+        for c in range(self.n_classes):
+            # Calculate likelihood for each choice under class c
+            for i in range(n_choices):
+                start_idx = i * self.n_alts
+                end_idx = (i + 1) * self.n_alts
+                
+                # Utilities for class c
+                utilities = X[start_idx:end_idx] @ self.betas[c]
+                
+                # Find chosen alternative
+                choice_idx = np.where(y[start_idx:end_idx] == 1)[0][0]
+                
+                # Choice probability
+                prob = np.exp(utilities[choice_idx] - logsumexp(utilities))
+                posteriors[i, c] = prob * self.class_probs[c]
+        
+        # Normalize posteriors
+        posteriors = posteriors / posteriors.sum(axis=1, keepdims=True)
+        return posteriors
+    
+    def m_step(self, X, y, posteriors, n_choices):
+        """
+        M-step: Update parameters given posterior probabilities.
+        """
+        # Update class probabilities
+        self.class_probs = posteriors.mean(axis=0)
+        
+        # Update class-specific parameters
+        for c in range(self.n_classes):
+            # Weighted MNL estimation for class c
+            def weighted_ll(params):
+                ll = 0
+                for i in range(n_choices):
+                    start_idx = i * self.n_alts
+                    end_idx = (i + 1) * self.n_alts
+                    
+                    utilities = X[start_idx:end_idx] @ params
+                    choice_idx = np.where(y[start_idx:end_idx] == 1)[0][0]
+                    
+                    ll += posteriors[i, c] * (utilities[choice_idx] - logsumexp(utilities))
+                return -ll
+            
+            result = minimize(weighted_ll, self.betas[c], method='BFGS', 
+                            options={'disp': False})
+            self.betas[c] = result.x
+    
+    def fit(self, X, y):
+        """
+        Fit latent-class MNL using EM algorithm.
+        """
+        n_obs = len(y)
+        n_choices = n_obs // self.n_alts
+        n_features = X.shape[1]
+        
+        # Initialize parameters
+        self.initialize_params(n_features)
+        
+        # EM algorithm
+        prev_ll = -np.inf
+        for iteration in range(self.max_iter):
+            # E-step
+            posteriors = self.e_step(X, y, n_choices)
+            
+            # M-step
+            self.m_step(X, y, posteriors, n_choices)
+            
+            # Calculate log-likelihood
+            ll = self.log_likelihood(X, y, n_choices)
+            
+            # Check convergence
+            if abs(ll - prev_ll) < self.tol:
+                print(f"Converged after {iteration + 1} iterations")
+                break
+            prev_ll = ll
+        
+        self.fitted = True
+        self.final_ll = ll
+        self.posteriors = posteriors
+        
+    def log_likelihood(self, X, y, n_choices):
+        """Calculate complete data log-likelihood."""
+        ll = 0
+        for i in range(n_choices):
+            start_idx = i * self.n_alts
+            end_idx = (i + 1) * self.n_alts
+            
+            # Likelihood for each class
+            class_liks = np.zeros(self.n_classes)
+            for c in range(self.n_classes):
+                utilities = X[start_idx:end_idx] @ self.betas[c]
+                choice_idx = np.where(y[start_idx:end_idx] == 1)[0][0]
+                class_liks[c] = np.exp(utilities[choice_idx] - logsumexp(utilities))
+            
+            # Weighted by class probabilities
+            ll += np.log(np.sum(class_liks * self.class_probs))
+        
+        return ll
+    
+    def get_n_parameters(self):
+        """Calculate total number of parameters."""
+        n_features = self.betas.shape[1]
+        # Class-specific betas + class probabilities (minus 1 for identification)
+        return self.n_classes * n_features + (self.n_classes - 1)
+```
+
+### Estimating latent class models
+```{python}
+# Estimate latent-class models for different numbers of classes
+results = {}
+n_choices = len(yogurt_data)
+
+print("\n### Estimating Latent-Class Models ###")
+for n_classes in [2, 3, 4, 5]:
+    print(f"\nFitting {n_classes}-class model...")
+    
+    # Fit model
+    model = LatentClassMNL(n_classes=n_classes)
+    model.fit(X, y)
+    
+    # Calculate BIC
+    ll = model.final_ll
+    k = model.get_n_parameters()
+    bic = -2 * ll + k * np.log(n_choices)
+    
+    results[n_classes] = {
+        'model': model,
+        'log_likelihood': ll,
+        'n_parameters': k,
+        'bic': bic,
+        'class_probs': model.class_probs,
+        'betas': model.betas
+    }
+    
+    print(f"  Log-likelihood: {ll:.2f}")
+    print(f"  Parameters: {k}")
+    print(f"  BIC: {bic:.2f}")
+    print(f"  Class sizes: {model.class_probs.round(3)}")
+```
+
+_todo: How many classes are suggested by the $BIC = -2*\ell_n  + k*log(n)$? (where $\ell_n$ is the log-likelihood, $n$ is the sample size, and $k$ is the number of parameters.) The Bayesian-Schwarz Information Criterion [link](https://en.wikipedia.org/wiki/Bayesian_information_criterion) is a metric that assess the benefit of a better log likelihood at the expense of additional parameters to estimate -- akin to the adjusted R-squared for the linear regression model. Note, that a **lower** BIC indicates a better model fit, accounting for the number of parameters in the model._
+
+### Model selection using BIC
+```{python}
+# Create BIC comparison plot
+n_classes_list = list(results.keys())
+bic_values = [results[n]['bic'] for n in n_classes_list]
+
+plt.figure(figsize=(10, 6))
+plt.plot(n_classes_list, bic_values, marker='o', markersize=10, 
+         linewidth=2, color='darkblue')
+plt.xlabel('Number of Classes', fontsize=12)
+plt.ylabel('BIC', fontsize=12)
+plt.title('Model Selection: BIC vs Number of Latent Classes', fontsize=14)
+plt.grid(True, alpha=0.3)
+
+# Highlight minimum BIC
+min_bic_idx = np.argmin(bic_values)
+optimal_classes = n_classes_list[min_bic_idx]
+plt.plot(optimal_classes, bic_values[min_bic_idx], 'ro', markersize=15)
+plt.annotate(f'Optimal: {optimal_classes} classes', 
+             xy=(optimal_classes, bic_values[min_bic_idx]),
+             xytext=(optimal_classes + 0.3, bic_values[min_bic_idx] + 20),
+             arrowprops=dict(arrowstyle='->', color='red'),
+             fontsize=12, color='red')
+
+plt.tight_layout()
+plt.show()
+
+print(f"\n### Model Selection Result ###")
+print(f"Optimal number of classes according to BIC: {optimal_classes}")
+print(f"BIC value: {results[optimal_classes]['bic']:.2f}")
+```
+
+### Parameter comparison
+
+```{python}
+# Compare parameters between aggregate MNL and optimal latent-class model
+optimal_model = results[optimal_classes]
+
+# Create comparison visualization
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+# Plot 1: Parameter values comparison
+param_names = ['Price', 'Feature']
+mnl_params = result_mnl.x
+
+# Prepare data for heatmap
+comparison_data = np.zeros((optimal_classes + 1, len(param_names)))
+comparison_data[0, :] = mnl_params
+
+for c in range(optimal_classes):
+    comparison_data[c + 1, :] = optimal_model['betas'][c]
+
+# Create heatmap
+sns.heatmap(comparison_data, 
+            xticklabels=param_names,
+            yticklabels=['Aggregate MNL'] + [f'Class {i+1}' for i in range(optimal_classes)],
+            annot=True, fmt='.3f', cmap='RdBu_r', center=0,
+            cbar_kws={'label': 'Parameter Value'},
+            ax=ax1)
+ax1.set_title('Parameter Estimates Comparison', fontsize=14)
+
+# Plot 2: Class sizes (for latent-class model)
+class_labels = [f'Class {i+1}' for i in range(optimal_classes)]
+class_sizes = optimal_model['class_probs']
+
+ax2.pie(class_sizes, labels=class_labels, autopct='%1.1f%%', 
+        colors=plt.cm.Set3(range(optimal_classes)))
+ax2.set_title(f'Latent Class Sizes ({optimal_classes}-Class Model)', fontsize=14)
+
+plt.tight_layout()
+plt.show()
+
+# Print detailed comparison
+print("\n### Parameter Comparison ###")
+print("\nAggregate MNL:")
+print(f"  Price coefficient: {mnl_params[0]:.4f}")
+print(f"  Feature coefficient: {mnl_params[1]:.4f}")
+
+print(f"\n{optimal_classes}-Class Latent Model:")
+for c in range(optimal_classes):
+    print(f"\nClass {c+1} (size: {optimal_model['class_probs'][c]:.1%}):")
+    print(f"  Price coefficient: {optimal_model['betas'][c][0]:.4f}")
+    print(f"  Feature coefficient: {optimal_model['betas'][c][1]:.4f}")
+```
+
+### Interpretation and Insights
+```{python}
+# Calculate and visualize heterogeneity in price sensitivity
+price_sensitivities = optimal_model['betas'][:, 0]
+feature_effects = optimal_model['betas'][:, 1]
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+# Price sensitivity distribution
+ax1.bar(range(1, optimal_classes + 1), -price_sensitivities, 
+        color='coral', edgecolor='black', alpha=0.7)
+ax1.axhline(y=-mnl_params[0], color='darkblue', linestyle='--', 
+           label='Aggregate MNL', linewidth=2)
+ax1.set_xlabel('Class')
+ax1.set_ylabel('Price Sensitivity (absolute value)')
+ax1.set_title('Price Sensitivity by Class', fontsize=14)
+ax1.set_xticks(range(1, optimal_classes + 1))
+ax1.legend()
+ax1.grid(axis='y', alpha=0.3)
+
+# Feature effect distribution
+ax2.bar(range(1, optimal_classes + 1), feature_effects, 
+        color='lightgreen', edgecolor='black', alpha=0.7)
+ax2.axhline(y=mnl_params[1], color='darkblue', linestyle='--', 
+           label='Aggregate MNL', linewidth=2)
+ax2.set_xlabel('Class')
+ax2.set_ylabel('Feature Effect')
+ax2.set_title('Feature/Promotion Effect by Class', fontsize=14)
+ax2.set_xticks(range(1, optimal_classes + 1))
+ax2.legend()
+ax2.grid(axis='y', alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Summary and Conclusions
+
+```{python}
+print("\n### Summary ###")
+print(f"1. The aggregate MNL model assumes all consumers have identical preferences.")
+print(f"2. The BIC criterion suggests {optimal_classes} latent classes provide the best model fit.")
+print(f"3. The latent-class model reveals significant heterogeneity in consumer preferences:")
+
+# Identify key differences between classes
+for c in range(optimal_classes):
+    price_sens = -optimal_model['betas'][c][0]
+    feature_eff = optimal_model['betas'][c][1]
+    class_size = optimal_model['class_probs'][c]
+    
+    print(f"\n   Class {c+1} ({class_size:.1%} of consumers):")
+    if price_sens > -mnl_params[0] * 1.2:
+        print(f"   - High price sensitivity")
+    elif price_sens < -mnl_params[0] * 0.8:
+        print(f"   - Low price sensitivity")
+    else:
+        print(f"   - Moderate price sensitivity")
+    
+    if feature_eff > mnl_params[1] * 1.2:
+        print(f"   - Strongly influenced by features/promotions")
+    elif feature_eff < mnl_params[1] * 0.8:
+        print(f"   - Weakly influenced by features/promotions")
+    else:
+        print(f"   - Moderately influenced by features/promotions")
+```
+
+## 2a. K Nearest Neighbors
+
+### Introduction
+In this section, I implement the K-Nearest Neighbors (KNN) algorithm from scratch and evaluate its performance on a synthetic binary classification dataset with a non-linear decision boundary. KNN is a simple yet powerful non-parametric algorithm that makes predictions based on the majority class of the k nearest neighbors in the feature space.
+
+### Generate Synthetic Dataset
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+import seaborn as sns
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+import time
+
+# Set random seed for reproducibility
+np.random.seed(42)
+
+# Generate training data
+n = 100
+x1 = np.random.uniform(-3, 3, n)
+x2 = np.random.uniform(-3, 3, n)
+x = np.column_stack((x1, x2))
+
+# Define a wiggly boundary using sin function
+boundary = np.sin(4*x1) + x1
+y = (x2 > boundary).astype(int)
+
+# Create training dataframe
+train_data = pd.DataFrame({
+    'x1': x1,
+    'x2': x2,
+    'y': y
+})
+
+print("Training dataset shape:", train_data.shape)
+print("\nClass distribution in training set:")
+print(train_data['y'].value_counts())
+print(f"Class balance: {(y==1).sum()/len(y):.1%} positive class")
+```
+
+### Visualise training data with decision boundary
+```{python}
+# Create figure with the wiggly boundary
+plt.figure(figsize=(10, 8))
+
+# Create a dense grid for plotting the true boundary
+x1_boundary = np.linspace(-3, 3, 1000)
+boundary_line = np.sin(4*x1_boundary) + x1_boundary
+
+# Plot the true decision boundary
+plt.plot(x1_boundary, boundary_line, 'k--', linewidth=2, 
+         label='True Boundary: y = sin(4x₁) + x₁', alpha=0.7)
+
+# Plot the data points
+colors = ['blue', 'red']
+labels = ['Class 0 (y < boundary)', 'Class 1 (y > boundary)']
+
+for class_val in [0, 1]:
+    mask = y == class_val
+    plt.scatter(x1[mask], x2[mask], c=colors[class_val], 
+                label=labels[class_val], alpha=0.6, edgecolor='black', s=50)
+
+plt.xlabel('x₁', fontsize=12)
+plt.ylabel('x₂', fontsize=12)
+plt.title('Training Data with Non-linear Decision Boundary', fontsize=14)
+plt.legend(loc='best')
+plt.grid(True, alpha=0.3)
+plt.xlim(-3.2, 3.2)
+plt.ylim(-3.2, 3.2)
+plt.tight_layout()
+plt.show()
+```
+
+### Generate test dataset
+```{python}
+# Generate test data with different seed
+np.random.seed(123)  # Different seed for test data
+
+n_test = 100
+x1_test = np.random.uniform(-3, 3, n_test)
+x2_test = np.random.uniform(-3, 3, n_test)
+x_test = np.column_stack((x1_test, x2_test))
+
+# Apply same boundary rule
+boundary_test = np.sin(4*x1_test) + x1_test
+y_test = (x2_test > boundary_test).astype(int)
+
+# Create test dataframe
+test_data = pd.DataFrame({
+    'x1': x1_test,
+    'x2': x2_test,
+    'y': y_test
+})
+
+print("\nTest dataset shape:", test_data.shape)
+print("\nClass distribution in test set:")
+print(test_data['y'].value_counts())
+print(f"Class balance: {(y_test==1).sum()/len(y_test):.1%} positive class")
+```
+
+### Implement KNN algorithm from scratch
+```{python}
+def euclidean_distance(x1, x2):
+    """Calculate Euclidean distance between two points."""
+    return np.sqrt(np.sum((x1 - x2)**2))
+
+def knn_predict_single(X_train, y_train, x_test, k):
+    """
+    Predict class for a single test point using KNN.
+    
+    Parameters:
+    - X_train: Training features (n_samples × n_features)
+    - y_train: Training labels (n_samples,)
+    - x_test: Single test point (n_features,)
+    - k: Number of neighbors
+    
+    Returns:
+    - Predicted class (0 or 1)
+    """
+    # Calculate distances to all training points
+    distances = []
+    for i in range(len(X_train)):
+        dist = euclidean_distance(X_train[i], x_test)
+        distances.append((dist, y_train[i]))
+    
+    # Sort by distance and get k nearest neighbors
+    distances.sort(key=lambda x: x[0])
+    k_nearest = distances[:k]
+    
+    # Get labels of k nearest neighbors
+    k_labels = [label for _, label in k_nearest]
+    
+    # Return majority vote (with tie-breaking favoring class 1)
+    return 1 if sum(k_labels) >= k/2 else 0
+
+def knn_predict(X_train, y_train, X_test, k):
+    """
+    Predict classes for multiple test points using KNN.
+    
+    Parameters:
+    - X_train: Training features (n_samples × n_features)
+    - y_train: Training labels (n_samples,)
+    - X_test: Test features (n_test_samples × n_features)
+    - k: Number of neighbors
+    
+    Returns:
+    - Array of predictions
+    """
+    predictions = []
+    for i in range(len(X_test)):
+        pred = knn_predict_single(X_train, y_train, X_test[i], k)
+        predictions.append(pred)
+    return np.array(predictions)
+
+# Test the implementation with k=5
+k_test = 5
+start_time = time.time()
+y_pred_manual = knn_predict(x, y, x_test, k=k_test)
+manual_time = time.time() - start_time
+
+print(f"\nManual KNN implementation (k={k_test}):")
+print(f"Time taken: {manual_time:.4f} seconds")
+print(f"Predictions shape: {y_pred_manual.shape}")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_manual):.4f}")
+```
+
+### Verifying implementation with sklearn
+```{python}
+# Compare with sklearn's implementation
+knn_sklearn = KNeighborsClassifier(n_neighbors=k_test)
+start_time = time.time()
+knn_sklearn.fit(x, y)
+y_pred_sklearn = knn_sklearn.predict(x_test)
+sklearn_time = time.time() - start_time
+
+print(f"\nSklearn KNN implementation (k={k_test}):")
+print(f"Time taken: {sklearn_time:.4f} seconds")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_sklearn):.4f}")
+
+# Check if predictions match
+matches = np.sum(y_pred_manual == y_pred_sklearn)
+print(f"\nPrediction agreement: {matches}/{len(y_test)} ({matches/len(y_test)*100:.1f}%)")
+
+# Visualize predictions comparison
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+# Manual implementation predictions
+ax1.scatter(x_test[y_pred_manual==0, 0], x_test[y_pred_manual==0, 1], 
+           c='blue', label='Predicted 0', alpha=0.6, edgecolor='black')
+ax1.scatter(x_test[y_pred_manual==1, 0], x_test[y_pred_manual==1, 1], 
+           c='red', label='Predicted 1', alpha=0.6, edgecolor='black')
+ax1.set_title(f'Manual KNN Predictions (k={k_test})', fontsize=14)
+ax1.set_xlabel('x₁')
+ax1.set_ylabel('x₂')
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+
+# Sklearn predictions
+ax2.scatter(x_test[y_pred_sklearn==0, 0], x_test[y_pred_sklearn==0, 1], 
+           c='blue', label='Predicted 0', alpha=0.6, edgecolor='black')
+ax2.scatter(x_test[y_pred_sklearn==1, 0], x_test[y_pred_sklearn==1, 1], 
+           c='red', label='Predicted 1', alpha=0.6, edgecolor='black')
+ax2.set_title(f'Sklearn KNN Predictions (k={k_test})', fontsize=14)
+ax2.set_xlabel('x₁')
+ax2.set_ylabel('x₂')
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Performance evaluation
+```{python}
+# Test for k values from 1 to 30
+k_values = range(1, 31)
+accuracies = []
+train_accuracies = []
+
+print("\nEvaluating KNN for different k values...")
+for k in k_values:
+    # Test set accuracy
+    y_pred = knn_predict(x, y, x_test, k)
+    test_acc = accuracy_score(y_test, y_pred)
+    accuracies.append(test_acc)
+    
+    # Training set accuracy (for comparison)
+    y_pred_train = knn_predict(x, y, x, k)
+    train_acc = accuracy_score(y, y_pred_train)
+    train_accuracies.append(train_acc)
+    
+    if k % 5 == 0:
+        print(f"k={k:2d}: Test Accuracy = {test_acc:.4f}, Train Accuracy = {train_acc:.4f}")
+
+# Find optimal k
+optimal_k = k_values[np.argmax(accuracies)]
+optimal_accuracy = max(accuracies)
+
+print(f"\nOptimal k value: {optimal_k}")
+print(f"Maximum test accuracy: {optimal_accuracy:.4f}")
+```
+
+### Accuracy by choice of k
+```{python}
+# Create accuracy plot
+plt.figure(figsize=(12, 7))
+
+# Plot both training and test accuracies
+plt.plot(k_values, train_accuracies, 'b-', linewidth=2, 
+         label='Training Accuracy', marker='o', markersize=4, alpha=0.7)
+plt.plot(k_values, accuracies, 'r-', linewidth=2, 
+         label='Test Accuracy', marker='s', markersize=4, alpha=0.7)
+
+# Highlight optimal k
+plt.scatter(optimal_k, optimal_accuracy, color='green', s=200, 
+            zorder=5, edgecolor='black', linewidth=2)
+plt.annotate(f'Optimal k={optimal_k}\nAccuracy={optimal_accuracy:.3f}', 
+             xy=(optimal_k, optimal_accuracy),
+             xytext=(optimal_k + 2, optimal_accuracy - 0.03),
+             arrowprops=dict(arrowstyle='->', color='green', linewidth=2),
+             fontsize=12, color='green', fontweight='bold',
+             bbox=dict(boxstyle="round,pad=0.3", facecolor="yellow", alpha=0.3))
+
+plt.xlabel('k (Number of Neighbors)', fontsize=12)
+plt.ylabel('Accuracy', fontsize=12)
+plt.title('KNN Performance: Accuracy vs Number of Neighbors', fontsize=14)
+plt.legend(loc='best', fontsize=11)
+plt.grid(True, alpha=0.3)
+plt.xlim(0, 31)
+plt.ylim(0.5, 1.02)
+
+# Add shaded region showing overfitting vs underfitting
+plt.axvspan(1, 5, alpha=0.1, color='blue', label='Potential Overfitting')
+plt.axvspan(20, 30, alpha=0.1, color='red', label='Potential Underfitting')
+
+plt.tight_layout()
+plt.show()
+```
+
+### Different decision boundaries
+```{python}
+def plot_decision_boundary(X_train, y_train, k, ax, title):
+    """Plot decision boundary for KNN with given k."""
+    # Create mesh
+    h = 0.1  # step size in mesh
+    x_min, x_max = X_train[:, 0].min() - 0.5, X_train[:, 0].max() + 0.5
+    y_min, y_max = X_train[:, 1].min() - 0.5, X_train[:, 1].max() + 0.5
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+    
+    # Predict on mesh points
+    mesh_points = np.c_[xx.ravel(), yy.ravel()]
+    Z = knn_predict(X_train, y_train, mesh_points, k)
+    Z = Z.reshape(xx.shape)
+    
+    # Plot decision boundary
+    ax.contourf(xx, yy, Z, alpha=0.4, cmap=ListedColormap(['lightblue', 'lightcoral']))
+    
+    # Plot training points
+    scatter = ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, 
+                         cmap=ListedColormap(['blue', 'red']), 
+                         edgecolor='black', s=50, alpha=0.8)
+    
+    ax.set_title(title, fontsize=12)
+    ax.set_xlabel('x₁')
+    ax.set_ylabel('x₂')
+    ax.grid(True, alpha=0.3)
+    
+    return scatter
+
+# Visualize decision boundaries for different k values
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes = axes.ravel()
+
+k_values_to_plot = [1, 3, 5, 10, 20, optimal_k]
+titles = [f'k = {k}' if k != optimal_k else f'k = {k} (Optimal)' 
+          for k in k_values_to_plot]
+
+for idx, (k, title) in enumerate(zip(k_values_to_plot, titles)):
+    plot_decision_boundary(x, y, k, axes[idx], title)
+
+plt.suptitle('KNN Decision Boundaries for Different k Values', fontsize=16)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+# Analyze the behavior of accuracy with k
+print("\n### Analysis of Results ###")
+
+# Find k values with top 5 accuracies
+top_k_indices = np.argsort(accuracies)[-5:][::-1]
+print("\nTop 5 k values by test accuracy:")
+for i, idx in enumerate(top_k_indices):
+    print(f"{i+1}. k={k_values[idx]:2d}: Accuracy = {accuracies[idx]:.4f}")
+
+# Analyze stability of accuracy around optimal k
+k_window = 2
+optimal_idx = optimal_k - 1  # Convert to 0-based index
+window_start = max(0, optimal_idx - k_window)
+window_end = min(len(accuracies), optimal_idx + k_window + 1)
+window_accuracies = accuracies[window_start:window_end]
+stability = np.std(window_accuracies)
+
+print(f"\nStability analysis around optimal k={optimal_k}:")
+print(f"Accuracy std in window [{optimal_k-k_window}, {optimal_k+k_window}]: {stability:.4f}")
+print(f"Average accuracy in window: {np.mean(window_accuracies):.4f}")
+
+# Bias-variance tradeoff discussion
+print("\n### Bias-Variance Tradeoff ###")
+print(f"k=1  accuracy: {accuracies[0]:.4f} (Low bias, high variance)")
+print(f"k={optimal_k} accuracy: {optimal_accuracy:.4f} (Optimal tradeoff)")
+print(f"k=30 accuracy: {accuracies[-1]:.4f} (High bias, low variance)")
+
+print("\n### Summary ###")
+print(f"1. Successfully implemented KNN algorithm from scratch")
+print(f"2. Implementation verified against sklearn (>{(np.sum(y_pred_manual == y_pred_sklearn)/len(y_test)*100):.0f}% agreement)")
+print(f"3. Optimal k value: {optimal_k} with test accuracy of {optimal_accuracy:.4f}")
+print(f"4. The non-linear decision boundary is well-captured by KNN with appropriate k")
+print(f"\nKey observations:")
+print(f"- Small k values (1-3) show signs of overfitting with jagged decision boundaries")
+print(f"- Large k values (>20) show signs of underfitting with overly smooth boundaries")
+print(f"- The optimal k={optimal_k} provides a good balance between bias and variance")
+print(f"- The wiggly sin-based boundary is effectively learned by the non-parametric KNN approach")
+```
