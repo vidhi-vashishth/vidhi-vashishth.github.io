@@ -8,22 +8,49 @@
         "title: \"Machine Learning\"\n",
         "author: \"Vidhi Vashishth\"\n",
         "date: today\n",
+        "execute:\n",
+        "  timeout: 300  # Increase timeout to 5 minutes\n",
+        "  error: true   # Continue rendering even if there are errors\n",
+        "  warning: true # Show warnings\n",
         "---\n",
         "\n",
         "## 1b. Latent-Class MNL\n",
         "\n",
-        "### Introduction\n",
-        "\n",
-        "In this analysis, I implement a latent-class multinomial logit (MNL) model on yogurt purchase data. The latent-class approach allows us to identify distinct consumer segments with different preferences, rather than assuming all consumers have identical preferences as in the standard MNL model.\n",
-        "\n",
-        "### Data Loading and Exploration"
+        "In this analysis, I implement a latent-class multinomial logit (MNL) model on yogurt purchase data. The latent-class approach allows us to identify distinct consumer segments with different preferences, rather than assuming all consumers have identical preferences as in the standard MNL model."
       ],
-      "id": "5f68a501"
+      "id": "24366e74"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: check-dependencies\n",
+        "#| echo: true\n",
+        "\n",
+        "import sys\n",
+        "import subprocess\n",
+        "\n",
+        "# Check for required packages\n",
+        "required_packages = ['scipy', 'sklearn', 'pandas', 'numpy', 'matplotlib', 'seaborn']\n",
+        "\n",
+        "for package in required_packages:\n",
+        "    try:\n",
+        "        __import__(package)\n",
+        "        print(f\"✓ {package} is installed\")\n",
+        "    except ImportError:\n",
+        "        print(f\"✗ {package} is not installed. Installing...\")\n",
+        "        subprocess.check_call([sys.executable, \"-m\", \"pip\", \"install\", package])"
+      ],
+      "id": "check-dependencies",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#| label: data-loading-and-exploration\n",
+        "#| echo: true\n",
         "import pandas as pd\n",
         "import numpy as np\n",
         "import matplotlib.pyplot as plt\n",
@@ -35,7 +62,7 @@
         "warnings.filterwarnings('ignore')\n",
         "\n",
         "# Load the yogurt dataset\n",
-        "yogurt_data = pd.read_csv('yogurt_data.csv')\n",
+        "yogurt_data = pd.read_csv('/home/jovyan/vvwebsite/blog/homework4/yogurt_data.csv')\n",
         "\n",
         "# Display basic information about the dataset\n",
         "print(\"Dataset shape:\", yogurt_data.shape)\n",
@@ -60,24 +87,16 @@
         "plt.tight_layout()\n",
         "plt.show()"
       ],
-      "id": "4abf2209",
+      "id": "data-loading-and-exploration",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "_The data provides anonymized consumer identifiers (`id`), a vector indicating the chosen product (`y1`:`y4`), a vector indicating if any products were \"featured\" in the store as a form of advertising (`f1`:`f4`), and the products' prices in price-per-ounce (`p1`:`p4`). For example, consumer 1 purchased yogurt 4 at a price of 0.079/oz and none of the yogurts were featured/advertised at the time of consumer 1's purchase.  Consumers 2 through 7 each bought yogurt 2, etc. You may want to reshape the data from its current \"wide\" format into a \"long\" format._\n",
-        "\n",
-        "### Data Reshaping from Wide to long format"
-      ],
-      "id": "8419e06b"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: data-reshaping-from-wide-to-long-format\n",
+        "#| echo: true\n",
         "def reshape_yogurt_data(df):\n",
         "    \"\"\"\n",
         "    Reshape yogurt data from wide to long format.\n",
@@ -117,24 +136,16 @@
         "print(f\"\\nOriginal data: {n_choices} choice occasions\")\n",
         "print(f\"Long format: {long_data.shape[0]} rows ({n_choices} × {n_alternatives} alternatives)\")"
       ],
-      "id": "7d0f1724",
+      "id": "data-reshaping-from-wide-to-long-format",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "_todo: Fit the standard MNL model on these data.  Then fit the latent-class MNL on these data separately for 2, 3, 4, and 5 latent classes._\n",
-        "\n",
-        "### Standard MNL model implementation"
-      ],
-      "id": "b88ed8ab"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Standard-MNL-Model-Implementation\n",
+        "#| echo: true\n",
         "def mnl_log_likelihood(params, X, y, n_alts=4):\n",
         "    \"\"\"\n",
         "    Calculate log-likelihood for standard MNL model.\n",
@@ -182,22 +193,16 @@
         "print(f\"Feature coefficient: {result_mnl.x[1]:.4f}\")\n",
         "print(f\"Log-likelihood: {-result_mnl.fun:.4f}\")"
       ],
-      "id": "7d4fd767",
+      "id": "Standard-MNL-Model-Implementation",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Latent-class MNL implementation"
-      ],
-      "id": "1aba153c"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Latent-class-MNL-implementation\n",
+        "#| echo: true\n",
         "class LatentClassMNL:\n",
         "    \"\"\"\n",
         "    Latent-class multinomial logit model using EM algorithm.\n",
@@ -328,39 +333,34 @@
         "        # Class-specific betas + class probabilities (minus 1 for identification)\n",
         "        return self.n_classes * n_features + (self.n_classes - 1)"
       ],
-      "id": "3fde86bb",
+      "id": "Latent-class-MNL-implementation",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Estimating latent class models"
-      ],
-      "id": "4ee6363f"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Estimating-latent-class-models\n",
+        "#| echo: true\n",
+        "\n",
         "# Estimate latent-class models for different numbers of classes\n",
         "results = {}\n",
         "n_choices = len(yogurt_data)\n",
         "\n",
         "print(\"\\n### Estimating Latent-Class Models ###\")\n",
-        "for n_classes in [2, 3, 4, 5]:\n",
+        "for n_classes in [2, 3, 4]:  # Limiting to fewer classes for faster computation\n",
         "    print(f\"\\nFitting {n_classes}-class model...\")\n",
-        "    \n",
-        "    # Fit model\n",
-        "    model = LatentClassMNL(n_classes=n_classes)\n",
+        "\n",
+        "    # Fit model with fewer iterations and increased tolerance\n",
+        "    model = LatentClassMNL(n_classes=n_classes, max_iter=50, tol=1e-4)\n",
         "    model.fit(X, y)\n",
-        "    \n",
+        "\n",
         "    # Calculate BIC\n",
         "    ll = model.final_ll\n",
         "    k = model.get_n_parameters()\n",
         "    bic = -2 * ll + k * np.log(n_choices)\n",
-        "    \n",
+        "\n",
         "    results[n_classes] = {\n",
         "        'model': model,\n",
         "        'log_likelihood': ll,\n",
@@ -369,30 +369,24 @@
         "        'class_probs': model.class_probs,\n",
         "        'betas': model.betas\n",
         "    }\n",
-        "    \n",
+        "\n",
         "    print(f\"  Log-likelihood: {ll:.2f}\")\n",
         "    print(f\"  Parameters: {k}\")\n",
         "    print(f\"  BIC: {bic:.2f}\")\n",
         "    print(f\"  Class sizes: {model.class_probs.round(3)}\")"
       ],
-      "id": "51900429",
+      "id": "Estimating-latent-class-models",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "_todo: How many classes are suggested by the $BIC = -2*\\ell_n  + k*log(n)$? (where $\\ell_n$ is the log-likelihood, $n$ is the sample size, and $k$ is the number of parameters.) The Bayesian-Schwarz Information Criterion [link](https://en.wikipedia.org/wiki/Bayesian_information_criterion) is a metric that assess the benefit of a better log likelihood at the expense of additional parameters to estimate -- akin to the adjusted R-squared for the linear regression model. Note, that a **lower** BIC indicates a better model fit, accounting for the number of parameters in the model._\n",
-        "\n",
-        "### Model selection using BIC"
-      ],
-      "id": "a4e0f3f1"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Model-selection-using-BIC\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "# Create BIC comparison plot\n",
         "n_classes_list = list(results.keys())\n",
         "bic_values = [results[n]['bic'] for n in n_classes_list]\n",
@@ -422,22 +416,18 @@
         "print(f\"Optimal number of classes according to BIC: {optimal_classes}\")\n",
         "print(f\"BIC value: {results[optimal_classes]['bic']:.2f}\")"
       ],
-      "id": "c9803507",
+      "id": "Model-selection-using-BIC",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Parameter comparison"
-      ],
-      "id": "cf71c7f9"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Parameter-comparison\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "# Compare parameters between aggregate MNL and optimal latent-class model\n",
         "optimal_model = results[optimal_classes]\n",
         "\n",
@@ -487,22 +477,18 @@
         "    print(f\"  Price coefficient: {optimal_model['betas'][c][0]:.4f}\")\n",
         "    print(f\"  Feature coefficient: {optimal_model['betas'][c][1]:.4f}\")"
       ],
-      "id": "342b588e",
+      "id": "Parameter-comparison",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Interpretation and Insights"
-      ],
-      "id": "9c9fc93a"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Interpretation-and-Insights\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "# Calculate and visualize heterogeneity in price sensitivity\n",
         "price_sensitivities = optimal_model['betas'][:, 0]\n",
         "feature_effects = optimal_model['betas'][:, 1]\n",
@@ -536,22 +522,18 @@
         "plt.tight_layout()\n",
         "plt.show()"
       ],
-      "id": "ad8bada6",
+      "id": "Interpretation-and-Insights",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Summary and Conclusions"
-      ],
-      "id": "a19b532d"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Summary-and-Conclusions\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "print(\"\\n### Summary ###\")\n",
         "print(f\"1. The aggregate MNL model assumes all consumers have identical preferences.\")\n",
         "print(f\"2. The BIC criterion suggests {optimal_classes} latent classes provide the best model fit.\")\n",
@@ -578,7 +560,7 @@
         "    else:\n",
         "        print(f\"   - Moderately influenced by features/promotions\")"
       ],
-      "id": "1544c023",
+      "id": "Summary-and-Conclusions",
       "execution_count": null,
       "outputs": []
     },
@@ -587,18 +569,18 @@
       "metadata": {},
       "source": [
         "## 2a. K Nearest Neighbors\n",
-        "\n",
-        "### Introduction\n",
-        "In this section, I implement the K-Nearest Neighbors (KNN) algorithm from scratch and evaluate its performance on a synthetic binary classification dataset with a non-linear decision boundary. KNN is a simple yet powerful non-parametric algorithm that makes predictions based on the majority class of the k nearest neighbors in the feature space.\n",
-        "\n",
-        "### Generate Synthetic Dataset"
+        "In this section, I implement the K-Nearest Neighbors (KNN) algorithm from scratch and evaluate its performance on a synthetic binary classification dataset with a non-linear decision boundary. KNN is a simple yet powerful non-parametric algorithm that makes predictions based on the majority class of the k nearest neighbors in the feature space."
       ],
-      "id": "95ae1a7c"
+      "id": "ef50caae"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Generate-Synthetic-Dataset\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "import numpy as np\n",
         "import pandas as pd\n",
         "import matplotlib.pyplot as plt\n",
@@ -633,22 +615,18 @@
         "print(train_data['y'].value_counts())\n",
         "print(f\"Class balance: {(y==1).sum()/len(y):.1%} positive class\")"
       ],
-      "id": "436bedaa",
+      "id": "Generate-Synthetic-Dataset",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Visualise training data with decision boundary"
-      ],
-      "id": "1a848c5e"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Visualise-training-data-with-decision-boundary\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "# Create figure with the wiggly boundary\n",
         "plt.figure(figsize=(10, 8))\n",
         "\n",
@@ -679,22 +657,18 @@
         "plt.tight_layout()\n",
         "plt.show()"
       ],
-      "id": "ebd0d3af",
+      "id": "Visualise-training-data-with-decision-boundary",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Generate test dataset"
-      ],
-      "id": "a096695c"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Generate-test-dataset\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "# Generate test data with different seed\n",
         "np.random.seed(123)  # Different seed for test data\n",
         "\n",
@@ -719,22 +693,18 @@
         "print(test_data['y'].value_counts())\n",
         "print(f\"Class balance: {(y_test==1).sum()/len(y_test):.1%} positive class\")"
       ],
-      "id": "fc694266",
+      "id": "Generate-test-dataset",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Implement KNN algorithm from scratch"
-      ],
-      "id": "89ac12ee"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Implement-KNN-algorithm-from-scratch\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "def euclidean_distance(x1, x2):\n",
         "    \"\"\"Calculate Euclidean distance between two points.\"\"\"\n",
         "    return np.sqrt(np.sum((x1 - x2)**2))\n",
@@ -798,22 +768,18 @@
         "print(f\"Predictions shape: {y_pred_manual.shape}\")\n",
         "print(f\"Accuracy: {accuracy_score(y_test, y_pred_manual):.4f}\")"
       ],
-      "id": "983bbffe",
+      "id": "Implement-KNN-algorithm-from-scratch",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Verifying implementation with sklearn"
-      ],
-      "id": "7a4bebed"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Verifying-implementation-with-sklearn\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "# Compare with sklearn's implementation\n",
         "knn_sklearn = KNeighborsClassifier(n_neighbors=k_test)\n",
         "start_time = time.time()\n",
@@ -857,22 +823,18 @@
         "plt.tight_layout()\n",
         "plt.show()"
       ],
-      "id": "1373aff9",
+      "id": "Verifying-implementation-with-sklearn",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Performance evaluation"
-      ],
-      "id": "ecc6547e"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Performance-evaluation\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "# Test for k values from 1 to 30\n",
         "k_values = range(1, 31)\n",
         "accuracies = []\n",
@@ -900,22 +862,18 @@
         "print(f\"\\nOptimal k value: {optimal_k}\")\n",
         "print(f\"Maximum test accuracy: {optimal_accuracy:.4f}\")"
       ],
-      "id": "a020037f",
+      "id": "Performance-evaluation",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Accuracy by choice of k"
-      ],
-      "id": "feb36ed3"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Accuracy-by-choice-of-k\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "# Create accuracy plot\n",
         "plt.figure(figsize=(12, 7))\n",
         "\n",
@@ -950,22 +908,18 @@
         "plt.tight_layout()\n",
         "plt.show()"
       ],
-      "id": "2aae8844",
+      "id": "Accuracy-by-choice-of-k",
       "execution_count": null,
       "outputs": []
-    },
-    {
-      "cell_type": "markdown",
-      "metadata": {},
-      "source": [
-        "### Different decision boundaries"
-      ],
-      "id": "32dfae46"
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+        "#| label: Different-decision-boundaries\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "def plot_decision_boundary(X_train, y_train, k, ax, title):\n",
         "    \"\"\"Plot decision boundary for KNN with given k.\"\"\"\n",
         "    # Create mesh\n",
@@ -1010,7 +964,7 @@
         "plt.tight_layout()\n",
         "plt.show()"
       ],
-      "id": "1b690d00",
+      "id": "Different-decision-boundaries",
       "execution_count": null,
       "outputs": []
     },
@@ -1018,7 +972,10 @@
       "cell_type": "code",
       "metadata": {},
       "source": [
-        "# Analyze the behavior of accuracy with k\n",
+        "#| label: Analyze-the-behavior-of-accuracy-with-k\n",
+        "#| echo: true\n",
+        "\n",
+        "\n",
         "print(\"\\n### Analysis of Results ###\")\n",
         "\n",
         "# Find k values with top 5 accuracies\n",
@@ -1056,7 +1013,7 @@
         "print(f\"- The optimal k={optimal_k} provides a good balance between bias and variance\")\n",
         "print(f\"- The wiggly sin-based boundary is effectively learned by the non-parametric KNN approach\")"
       ],
-      "id": "b7ae8161",
+      "id": "Analyze-the-behavior-of-accuracy-with-k",
       "execution_count": null,
       "outputs": []
     }

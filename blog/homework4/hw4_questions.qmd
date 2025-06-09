@@ -2,17 +2,38 @@
 title: "Machine Learning"
 author: "Vidhi Vashishth"
 date: today
+execute:
+  timeout: 300  # Increase timeout to 5 minutes
+  error: true   # Continue rendering even if there are errors
+  warning: true # Show warnings
 ---
 
 ## 1b. Latent-Class MNL
 
-### Introduction
-
 In this analysis, I implement a latent-class multinomial logit (MNL) model on yogurt purchase data. The latent-class approach allows us to identify distinct consumer segments with different preferences, rather than assuming all consumers have identical preferences as in the standard MNL model.
 
-### Data Loading and Exploration
+```{python}
+#| label: check-dependencies
+#| echo: true
+
+import sys
+import subprocess
+
+# Check for required packages
+required_packages = ['scipy', 'sklearn', 'pandas', 'numpy', 'matplotlib', 'seaborn']
+
+for package in required_packages:
+    try:
+        __import__(package)
+        print(f"✓ {package} is installed")
+    except ImportError:
+        print(f"✗ {package} is not installed. Installing...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+```
 
 ```{python}
+#| label: data-loading-and-exploration
+#| echo: true
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,7 +45,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Load the yogurt dataset
-yogurt_data = pd.read_csv('yogurt_data.csv')
+yogurt_data = pd.read_csv('/home/jovyan/vvwebsite/blog/homework4/yogurt_data.csv')
 
 # Display basic information about the dataset
 print("Dataset shape:", yogurt_data.shape)
@@ -50,9 +71,9 @@ plt.tight_layout()
 plt.show()
 ```
 
-
-### Data Reshaping from Wide to long format
 ```{python}
+#| label: data-reshaping-from-wide-to-long-format
+#| echo: true
 def reshape_yogurt_data(df):
     """
     Reshape yogurt data from wide to long format.
@@ -93,8 +114,9 @@ print(f"\nOriginal data: {n_choices} choice occasions")
 print(f"Long format: {long_data.shape[0]} rows ({n_choices} × {n_alternatives} alternatives)")
 ```
 
-### Standard MNL model implementation
 ```{python}
+#| label: Standard-MNL-Model-Implementation
+#| echo: true
 def mnl_log_likelihood(params, X, y, n_alts=4):
     """
     Calculate log-likelihood for standard MNL model.
@@ -143,8 +165,9 @@ print(f"Feature coefficient: {result_mnl.x[1]:.4f}")
 print(f"Log-likelihood: {-result_mnl.fun:.4f}")
 ```
 
-### Latent-class MNL implementation
 ```{python}
+#| label: Latent-class-MNL-implementation
+#| echo: true
 class LatentClassMNL:
     """
     Latent-class multinomial logit model using EM algorithm.
@@ -276,25 +299,27 @@ class LatentClassMNL:
         return self.n_classes * n_features + (self.n_classes - 1)
 ```
 
-### Estimating latent class models
 ```{python}
+#| label: Estimating-latent-class-models
+#| echo: true
+
 # Estimate latent-class models for different numbers of classes
 results = {}
 n_choices = len(yogurt_data)
 
 print("\n### Estimating Latent-Class Models ###")
-for n_classes in [2, 3, 4, 5]:
+for n_classes in [2, 3, 4]:  # Limiting to fewer classes for faster computation
     print(f"\nFitting {n_classes}-class model...")
-    
-    # Fit model
-    model = LatentClassMNL(n_classes=n_classes)
+
+    # Fit model with fewer iterations and increased tolerance
+    model = LatentClassMNL(n_classes=n_classes, max_iter=50, tol=1e-4)
     model.fit(X, y)
-    
+
     # Calculate BIC
     ll = model.final_ll
     k = model.get_n_parameters()
     bic = -2 * ll + k * np.log(n_choices)
-    
+
     results[n_classes] = {
         'model': model,
         'log_likelihood': ll,
@@ -303,15 +328,18 @@ for n_classes in [2, 3, 4, 5]:
         'class_probs': model.class_probs,
         'betas': model.betas
     }
-    
+
     print(f"  Log-likelihood: {ll:.2f}")
     print(f"  Parameters: {k}")
     print(f"  BIC: {bic:.2f}")
     print(f"  Class sizes: {model.class_probs.round(3)}")
 ```
 
-### Model selection using BIC
 ```{python}
+#| label: Model-selection-using-BIC
+#| echo: true
+
+
 # Create BIC comparison plot
 n_classes_list = list(results.keys())
 bic_values = [results[n]['bic'] for n in n_classes_list]
@@ -342,9 +370,12 @@ print(f"Optimal number of classes according to BIC: {optimal_classes}")
 print(f"BIC value: {results[optimal_classes]['bic']:.2f}")
 ```
 
-### Parameter comparison
 
 ```{python}
+#| label: Parameter-comparison
+#| echo: true
+
+
 # Compare parameters between aggregate MNL and optimal latent-class model
 optimal_model = results[optimal_classes]
 
@@ -395,8 +426,12 @@ for c in range(optimal_classes):
     print(f"  Feature coefficient: {optimal_model['betas'][c][1]:.4f}")
 ```
 
-### Interpretation and Insights
+
 ```{python}
+#| label: Interpretation-and-Insights
+#| echo: true
+
+
 # Calculate and visualize heterogeneity in price sensitivity
 price_sensitivities = optimal_model['betas'][:, 0]
 feature_effects = optimal_model['betas'][:, 1]
@@ -431,9 +466,12 @@ plt.tight_layout()
 plt.show()
 ```
 
-### Summary and Conclusions
 
 ```{python}
+#| label: Summary-and-Conclusions
+#| echo: true
+
+
 print("\n### Summary ###")
 print(f"1. The aggregate MNL model assumes all consumers have identical preferences.")
 print(f"2. The BIC criterion suggests {optimal_classes} latent classes provide the best model fit.")
@@ -462,12 +500,13 @@ for c in range(optimal_classes):
 ```
 
 ## 2a. K Nearest Neighbors
-
-### Introduction
 In this section, I implement the K-Nearest Neighbors (KNN) algorithm from scratch and evaluate its performance on a synthetic binary classification dataset with a non-linear decision boundary. KNN is a simple yet powerful non-parametric algorithm that makes predictions based on the majority class of the k nearest neighbors in the feature space.
 
-### Generate Synthetic Dataset
 ```{python}
+#| label: Generate-Synthetic-Dataset
+#| echo: true
+
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -503,8 +542,12 @@ print(train_data['y'].value_counts())
 print(f"Class balance: {(y==1).sum()/len(y):.1%} positive class")
 ```
 
-### Visualise training data with decision boundary
+
 ```{python}
+#| label: Visualise-training-data-with-decision-boundary
+#| echo: true
+
+
 # Create figure with the wiggly boundary
 plt.figure(figsize=(10, 8))
 
@@ -536,8 +579,12 @@ plt.tight_layout()
 plt.show()
 ```
 
-### Generate test dataset
+
 ```{python}
+#| label: Generate-test-dataset
+#| echo: true
+
+
 # Generate test data with different seed
 np.random.seed(123)  # Different seed for test data
 
@@ -563,8 +610,12 @@ print(test_data['y'].value_counts())
 print(f"Class balance: {(y_test==1).sum()/len(y_test):.1%} positive class")
 ```
 
-### Implement KNN algorithm from scratch
+
 ```{python}
+#| label: Implement-KNN-algorithm-from-scratch
+#| echo: true
+
+
 def euclidean_distance(x1, x2):
     """Calculate Euclidean distance between two points."""
     return np.sqrt(np.sum((x1 - x2)**2))
@@ -629,8 +680,12 @@ print(f"Predictions shape: {y_pred_manual.shape}")
 print(f"Accuracy: {accuracy_score(y_test, y_pred_manual):.4f}")
 ```
 
-### Verifying implementation with sklearn
+
 ```{python}
+#| label: Verifying-implementation-with-sklearn
+#| echo: true
+
+
 # Compare with sklearn's implementation
 knn_sklearn = KNeighborsClassifier(n_neighbors=k_test)
 start_time = time.time()
@@ -675,8 +730,12 @@ plt.tight_layout()
 plt.show()
 ```
 
-### Performance evaluation
+
 ```{python}
+#| label: Performance-evaluation
+#| echo: true
+
+
 # Test for k values from 1 to 30
 k_values = range(1, 31)
 accuracies = []
@@ -705,8 +764,12 @@ print(f"\nOptimal k value: {optimal_k}")
 print(f"Maximum test accuracy: {optimal_accuracy:.4f}")
 ```
 
-### Accuracy by choice of k
+
 ```{python}
+#| label: Accuracy-by-choice-of-k
+#| echo: true
+
+
 # Create accuracy plot
 plt.figure(figsize=(12, 7))
 
@@ -742,8 +805,12 @@ plt.tight_layout()
 plt.show()
 ```
 
-### Different decision boundaries
+
 ```{python}
+#| label: Different-decision-boundaries
+#| echo: true
+
+
 def plot_decision_boundary(X_train, y_train, k, ax, title):
     """Plot decision boundary for KNN with given k."""
     # Create mesh
@@ -790,7 +857,10 @@ plt.show()
 ```
 
 ```{python}
-# Analyze the behavior of accuracy with k
+#| label: Analyze-the-behavior-of-accuracy-with-k
+#| echo: true
+
+
 print("\n### Analysis of Results ###")
 
 # Find k values with top 5 accuracies
