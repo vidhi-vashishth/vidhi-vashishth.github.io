@@ -241,7 +241,7 @@ window.Quarto = {
 </section>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
-<div id="5d0ad903" class="cell" data-execution_count="1">
+<div id="c6e004d4" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import libraries</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -319,7 +319,7 @@ window.Quarto = {
 </div>
 <p>The dataset contains the following key variables:</p>
 <p>patents: Number of patents filed by the firm region: Geographic region of the firm age: Age of the firm in years iscustomer: Binary indicator (1 = Blueprinty customer, 0 = not a customer)</p>
-<div id="36bcddf0" class="cell" data-execution_count="2">
+<div id="a60e3975" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare histograms and means of number of patents by customer status</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>customer_patents <span class="op">=</span> blueprinty[blueprinty[<span class="st">'iscustomer'</span>] <span class="op">==</span> <span class="dv">1</span>][<span class="st">'patents'</span>]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>non_customer_patents <span class="op">=</span> blueprinty[blueprinty[<span class="st">'iscustomer'</span>] <span class="op">==</span> <span class="dv">0</span>][<span class="st">'patents'</span>]</span>
@@ -351,7 +351,7 @@ Mean patents for non-customers: 3.47</code></pre>
 </div>
 <p>The descriptive statistics show that Blueprinty customers have a higher mean number of patents (4.13) compared to non-customers (3.47). The histogram visualization confirms this pattern, showing that the distribution for customers is shifted slightly to the right compared to non-customers.</p>
 <p>However, this simple comparison doesn’t control for other factors that might influence patent activity. Blueprinty customers are not selected at random. It may be important to account for systematic differences in the age and regional location of customers vs non-customers.</p>
-<div id="149c4314" class="cell" data-execution_count="3">
+<div id="7c3376ca" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Region by customer status</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>region_customer <span class="op">=</span> pd.crosstab(blueprinty[<span class="st">'region'</span>], blueprinty[<span class="st">'iscustomer'</span>], </span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                             normalize<span class="op">=</span><span class="st">'columns'</span>, margins<span class="op">=</span><span class="va">True</span>)</span>
@@ -422,7 +422,7 @@ iscustomer
 <p>Since our outcome variable of interest can only be small integer values per a set unit of time, we can use a Poisson density to model the number of patents awarded to each engineering firm over the last 5 years. We start by estimating a simple Poisson model via Maximum Likelihood.</p>
 <p>The log-likelihood function for Poisson distribution is: <span class="math inline">\(\log L(\lambda|Y) = \sum_{i=1}^{n}[-\lambda + Y_i\log(\lambda) - \log(Y_i!)]\)</span></p>
 <p>Since <span class="math inline">\(\log(Y_i!)\)</span> is constant with respect to <span class="math inline">\(\lambda\)</span>, we can simplify to: <span class="math inline">\(\log L(\lambda|Y) = \sum_{i=1}^{n}[-\lambda + Y_i\log(\lambda)]\)</span></p>
-<div id="a0405acf" class="cell" data-execution_count="4">
+<div id="9a7fe4ab" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> poisson_loglikelihood(lambda_val, Y):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Compute the log-likelihood for a Poisson distribution.</span></span>
@@ -438,7 +438,7 @@ iscustomer
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Since log(y!) is constant with respect to lambda, we can omit it for optimization</span></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.<span class="bu">sum</span>(<span class="op">-</span>lambda_val <span class="op">+</span> Y <span class="op">*</span> np.log(lambda_val))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="7dbeaab6" class="cell" data-execution_count="5">
+<div id="79c545ee" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get observed patent counts</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> blueprinty[<span class="st">'patents'</span>].values</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -476,7 +476,7 @@ iscustomer
 <p><span class="math inline">\(\frac{\sum_{i=1}^{n}Y_i}{\lambda} = n\)</span></p>
 <p><span class="math inline">\(\lambda = \frac{\sum_{i=1}^{n}Y_i}{n} = \bar{Y}\)</span></p>
 <p>Therefore, the MLE of lambda is the sample mean, which matches our intuition since the mean of a Poisson distribution is lambda.</p>
-<div id="7803de4a" class="cell" data-execution_count="6">
+<div id="674ce5bb" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get observed patent counts</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> blueprinty[<span class="st">'patents'</span>].values</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -502,7 +502,7 @@ Maximum log-likelihood value: 1681.2032</code></pre>
 <section id="estimation-of-poisson-regression-model" class="level3">
 <h3 class="anchored" data-anchor-id="estimation-of-poisson-regression-model">Estimation of Poisson Regression Model</h3>
 <p>Next, we extend our simple Poisson model to a Poisson Regression Model such that <span class="math inline">\(Y_i = \text{Poisson}(\lambda_i)\)</span> where <span class="math inline">\(\lambda_i = \exp(X_i'\beta)\)</span>. The interpretation is that the success rate of patent awards is not constant across all firms (<span class="math inline">\(\lambda\)</span>) but rather is a function of firm characteristics <span class="math inline">\(X_i\)</span>. Specifically, we will use the covariates age, age squared, region, and whether the firm is a customer of Blueprinty.</p>
-<div id="fa3439ec" class="cell" data-execution_count="7">
+<div id="c2e71df4" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> poisson_regression_loglikelihood(beta, Y, X):</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Compute the log-likelihood for a Poisson regression model.</span></span>
@@ -530,7 +530,7 @@ Maximum log-likelihood value: 1681.2032</code></pre>
 <span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> log_likelihood</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="660e89d0" class="cell" data-execution_count="8">
+<div id="28aaf63a" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare data for regression - with data type checking and conversion</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># First, examine blueprinty data types</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Column types before conversion:"</span>)</span>
@@ -639,7 +639,7 @@ iscustomer        1.827509e-11  1.230709  </code></pre>
 <p>Customer Status: The coefficient for customer status (0.208) is positive and highly significant (p &lt; 0.001), suggesting that being a Blueprinty customer is associated with more patents.</p>
 <p>Region Effects: The region variables show some variation, but none are statistically significant at the 5% level, suggesting that after controlling for other factors, region does not strongly predict patent counts.</p>
 <p>Incidence Rate Ratio (IRR): The IRR for customer status is 1.23, which means that, all else equal, being a Blueprinty customer is associated with 23% more patents.</p>
-<div id="711b7ee8" class="cell" data-execution_count="9">
+<div id="4d8ca507" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit GLM with Poisson family</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> sm.GLM(Y, X, family<span class="op">=</span>sm.families.Poisson())</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span>
@@ -706,7 +706,7 @@ Model Family:                 Poisson   Df Model:                            7
 Link Function:                    Log   Scale:                          1.0000
 Method:                          IRLS   Log-Likelihood:                -3258.1
 Date:                Mon, 09 Jun 2025   Deviance:                       2143.3
-Time:                        14:52:59   Pearson chi2:                 2.07e+03
+Time:                        21:19:09   Pearson chi2:                 2.07e+03
 No. Iterations:                     5   Pseudo R-squ. (CS):             0.1360
 Covariance Type:            nonrobust                                         
 ====================================================================================
@@ -773,7 +773,7 @@ Variable Definitions
 </div>
 </div>
 <p>The initial data exploration reveals:</p>
-<div id="a2dbd66f" class="cell" data-execution_count="10">
+<div id="8e63b044" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in AirBnB data</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>airbnb <span class="op">=</span> pd.read_csv(<span class="st">'/home/jovyan/vvwebsite/blog/homework2/airbnb.csv'</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1057,7 +1057,7 @@ Model Family:                 Poisson   Df Model:                            7
 Link Function:                    Log   Scale:                          1.0000
 Method:                          IRLS   Log-Likelihood:            -6.5515e+05
 Date:                Mon, 09 Jun 2025   Deviance:                   1.1871e+06
-Time:                        14:53:01   Pearson chi2:                 1.71e+06
+Time:                        21:19:10   Pearson chi2:                 1.71e+06
 No. Iterations:                     6   Pseudo R-squ. (CS):             0.9693
 Covariance Type:            nonrobust                                         
 ===========================================================================================
@@ -1082,7 +1082,7 @@ Model Family:                 Poisson   Df Model:                           10
 Link Function:                    Log   Scale:                          1.0000
 Method:                          IRLS   Log-Likelihood:            -4.8716e+05
 Date:                Mon, 09 Jun 2025   Deviance:                   8.5284e+05
-Time:                        14:53:01   Pearson chi2:                 1.16e+06
+Time:                        21:19:10   Pearson chi2:                 1.16e+06
 No. Iterations:                     6   Pseudo R-squ. (CS):             0.9729
 Covariance Type:            nonrobust                                         
 =============================================================================================

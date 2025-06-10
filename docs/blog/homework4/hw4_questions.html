@@ -205,7 +205,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">'ignore'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="c429709e" class="cell" data-execution_count="2">
+<div id="a7e0ef83" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the penguins dataset</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> pd.read_csv(<span class="st">'palmer_penguins.csv'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>penguins_clean <span class="op">=</span> penguins[[<span class="st">'bill_length_mm'</span>, <span class="st">'flipper_length_mm'</span>]].dropna()</span>
@@ -217,7 +217,7 @@ Dataset shape after cleaning: (333, 2)
 Removed 0 rows with missing values</code></pre>
 </div>
 </div>
-<div id="b41747e5" class="cell" data-execution_count="3">
+<div id="d35fe2e5" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display basic information about the dataset</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Basic statistics of the features:"</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(penguins_clean.describe())</span>
@@ -903,7 +903,7 @@ Class balance: 52.0% positive class</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Manual KNN implementation (k=5):
-Time taken: 0.0268 seconds
+Time taken: 0.0267 seconds
 Predictions shape: (100,)
 Accuracy: 0.9200</code></pre>
 </div>
@@ -954,7 +954,7 @@ Accuracy: 0.9200</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Sklearn KNN implementation (k=5):
-Time taken: 0.0051 seconds
+Time taken: 0.0042 seconds
 Accuracy: 0.9200
 
 Prediction agreement: 100/100 (100.0%)</code></pre>
