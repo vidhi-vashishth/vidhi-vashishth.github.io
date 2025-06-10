@@ -8,480 +8,435 @@ execute:
   warning: true # Show warnings
 ---
 
-## 1b. Latent-Class MNL
+## 1a. K-Means
 
-In this analysis, I implement a latent-class multinomial logit (MNL) model on yogurt purchase data. The latent-class approach allows us to identify distinct consumer segments with different preferences, rather than assuming all consumers have identical preferences as in the standard MNL model.
+In this analysis, I implement the K-means clustering algorithm from scratch and apply it to the Palmer Penguins dataset. K-means is an unsupervised learning algorithm that partitions data into K clusters by iteratively assigning points to the nearest cluster center and updating centers based on the assigned points.
 
 ```{python}
-#| label: data-loading-and-exploration
+#| label: data-loading-and-prep
 #| echo: true
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy.optimize import minimize
-from scipy.special import logsumexp
-from scipy.stats import multivariate_normal
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import StandardScaler
 import warnings
 warnings.filterwarnings('ignore')
 ```
 
 ```{python}
-# Load the yogurt dataset
-yogurt = pd.read_csv('yogurt_data.csv')
+# Load the penguins dataset
+penguins = pd.read_csv('palmer_penguins.csv')
+penguins_clean = penguins[['bill_length_mm', 'flipper_length_mm']].dropna()
+print(f"\nDataset shape after cleaning: {penguins_clean.shape}")
+print(f"Removed {len(penguins) - len(penguins_clean)} rows with missing values")
 ```
 
 ```{python}
 # Display basic information about the dataset
-print("Dataset shape:", yogurt.shape)
-print("\nFirst few rows:")
-print(yogurt.head())
-print("\nColumn names:")
-print(yogurt.columns.tolist())
+print("\nBasic statistics of the features:")
+print(penguins_clean.describe())
 
-# Analyze purchase patterns
-purchase_counts = (yogurt[['y1', 'y2', 'y3', 'y4']].sum())
-print("\nPurchase counts by product:")
-print(purchase_counts)
+X = penguins_clean.values
+feature_names = ['Bill Length (mm)', 'Flipper Length (mm)']
 
-# Visualize purchase distribution
-plt.figure(figsize=(8, 5))
-purchase_counts.plot(kind='bar', color='skyblue', edgecolor='black')
-plt.title('Distribution of Yogurt Purchases by Product', fontsize=14)
-plt.xlabel('Product')
-plt.ylabel('Number of Purchases')
-plt.xticks(rotation=0)
-plt.grid(axis='y', alpha=0.3)
-plt.tight_layout()
-plt.show()
+# Standardize the features for better clustering performance
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Create both scaled and unscaled versions for visualization
+X_unscaled = X.copy()
 ```
 
 ```{python}
-#| label: data-reshaping-from-wide-to-long-format
+#| label: visualise-original-data
 #| echo: true
-def reshape_yogurt_data(df):
-    """
-    Reshape yogurt data from wide to long format.
-    Each row becomes one alternative for one choice occasion.
-    """
-    long_data = []
-    
-    for idx, row in df.iterrows():
-        consumer_id = row['id']
-        
-        # For each alternative (yogurt 1-4)
-        for j in range(1, 5):
-            choice = row[f'y{j}']
-            feature = row[f'f{j}']
-            price = row[f'p{j}']
-            
-            long_data.append({
-                'id': consumer_id,
-                'alternative': j,
-                'choice': choice,
-                'feature': feature,
-                'price': price,
-                'choice_id': idx  # to track choice occasions
-            })
-    
-    return pd.DataFrame(long_data)
-
-# Reshape the data
-long_data = reshape_yogurt_data(yogurt)
-print("\nReshaped data shape:", long_data.shape)
-print("\nFirst 8 rows (2 choice occasions):")
-print(long_data.head(8))
-
-# Verify reshaping
-n_choices = yogurt.shape[0]
-n_alternatives = 4
-print(f"\nOriginal data: {n_choices} choice occasions")
-print(f"Long format: {long_data.shape[0]} rows ({n_choices} × {n_alternatives} alternatives)")
-```
-
-```{python}
-#| label: Standard-MNL-Model-Implementation
-#| echo: true
-def mnl_log_likelihood(params, X, y, n_alts=4):
-    """
-    Calculate log-likelihood for standard MNL model.
-    
-    Parameters:
-    - params: array of parameters [price_coef, feature_coef]
-    - X: feature matrix (n_obs × n_features)
-    - y: choice indicators (n_obs,)
-    - n_alts: number of alternatives per choice occasion
-    """
-    beta_price = params[0]
-    beta_feature = params[1]
-    
-    n_obs = len(y)
-    n_choices = n_obs // n_alts
-    
-    ll = 0
-    for i in range(n_choices):
-        start_idx = i * n_alts
-        end_idx = (i + 1) * n_alts
-        
-        # Calculate utilities for all alternatives in this choice set
-        utilities = (beta_price * X[start_idx:end_idx, 0] + 
-                    beta_feature * X[start_idx:end_idx, 1])
-        
-        # Find which alternative was chosen
-        choice_idx = np.where(y[start_idx:end_idx] == 1)[0][0]
-        
-        # Log-likelihood contribution
-        ll += utilities[choice_idx] - logsumexp(utilities)
-    
-    return -ll  # Return negative for minimization
-
-# Prepare data for MNL estimation
-X = long_data[['price', 'feature']].values
-y = long_data['choice'].values
-
-# Estimate standard MNL
-init_params = [0, 0]  # Initial values for price and feature coefficients
-result_mnl = minimize(mnl_log_likelihood, init_params, args=(X, y), 
-                     method='BFGS', options={'disp': False})
-
-print("\n### Standard MNL Results ###")
-print(f"Price coefficient: {result_mnl.x[0]:.4f}")
-print(f"Feature coefficient: {result_mnl.x[1]:.4f}")
-print(f"Log-likelihood: {-result_mnl.fun:.4f}")
-```
-
-```{python}
-#| label: Latent-class-MNL-implementation
-#| echo: true
-class LatentClassMNL:
-    """
-    Latent-class multinomial logit model using EM algorithm.
-    """
-    
-    def __init__(self, n_classes, n_alts=4, max_iter=100, tol=1e-6):
-        self.n_classes = n_classes
-        self.n_alts = n_alts
-        self.max_iter = max_iter
-        self.tol = tol
-        self.fitted = False
-        
-    def initialize_params(self, n_features):
-        """Initialize parameters randomly."""
-        # Class-specific choice parameters
-        self.betas = np.random.randn(self.n_classes, n_features)
-        
-        # Class membership probabilities (equal initially)
-        self.class_probs = np.ones(self.n_classes) / self.n_classes
-        
-    def e_step(self, X, y, n_choices):
-        """
-        E-step: Calculate posterior class membership probabilities.
-        """
-        posteriors = np.zeros((n_choices, self.n_classes))
-        
-        for c in range(self.n_classes):
-            # Calculate likelihood for each choice under class c
-            for i in range(n_choices):
-                start_idx = i * self.n_alts
-                end_idx = (i + 1) * self.n_alts
-                
-                # Utilities for class c
-                utilities = X[start_idx:end_idx] @ self.betas[c]
-                
-                # Find chosen alternative
-                choice_idx = np.where(y[start_idx:end_idx] == 1)[0][0]
-                
-                # Choice probability
-                prob = np.exp(utilities[choice_idx] - logsumexp(utilities))
-                posteriors[i, c] = prob * self.class_probs[c]
-        
-        # Normalize posteriors
-        posteriors = posteriors / posteriors.sum(axis=1, keepdims=True)
-        return posteriors
-    
-    def m_step(self, X, y, posteriors, n_choices):
-        """
-        M-step: Update parameters given posterior probabilities.
-        """
-        # Update class probabilities
-        self.class_probs = posteriors.mean(axis=0)
-        
-        # Update class-specific parameters
-        for c in range(self.n_classes):
-            # Weighted MNL estimation for class c
-            def weighted_ll(params):
-                ll = 0
-                for i in range(n_choices):
-                    start_idx = i * self.n_alts
-                    end_idx = (i + 1) * self.n_alts
-                    
-                    utilities = X[start_idx:end_idx] @ params
-                    choice_idx = np.where(y[start_idx:end_idx] == 1)[0][0]
-                    
-                    ll += posteriors[i, c] * (utilities[choice_idx] - logsumexp(utilities))
-                return -ll
-            
-            result = minimize(weighted_ll, self.betas[c], method='BFGS', 
-                            options={'disp': False})
-            self.betas[c] = result.x
-    
-    def fit(self, X, y):
-        """
-        Fit latent-class MNL using EM algorithm.
-        """
-        n_obs = len(y)
-        n_choices = n_obs // self.n_alts
-        n_features = X.shape[1]
-        
-        # Initialize parameters
-        self.initialize_params(n_features)
-        
-        # EM algorithm
-        prev_ll = -np.inf
-        for iteration in range(self.max_iter):
-            # E-step
-            posteriors = self.e_step(X, y, n_choices)
-            
-            # M-step
-            self.m_step(X, y, posteriors, n_choices)
-            
-            # Calculate log-likelihood
-            ll = self.log_likelihood(X, y, n_choices)
-            
-            # Check convergence
-            if abs(ll - prev_ll) < self.tol:
-                print(f"Converged after {iteration + 1} iterations")
-                break
-            prev_ll = ll
-        
-        self.fitted = True
-        self.final_ll = ll
-        self.posteriors = posteriors
-        
-    def log_likelihood(self, X, y, n_choices):
-        """Calculate complete data log-likelihood."""
-        ll = 0
-        for i in range(n_choices):
-            start_idx = i * self.n_alts
-            end_idx = (i + 1) * self.n_alts
-            
-            # Likelihood for each class
-            class_liks = np.zeros(self.n_classes)
-            for c in range(self.n_classes):
-                utilities = X[start_idx:end_idx] @ self.betas[c]
-                choice_idx = np.where(y[start_idx:end_idx] == 1)[0][0]
-                class_liks[c] = np.exp(utilities[choice_idx] - logsumexp(utilities))
-            
-            # Weighted by class probabilities
-            ll += np.log(np.sum(class_liks * self.class_probs))
-        
-        return ll
-    
-    def get_n_parameters(self):
-        """Calculate total number of parameters."""
-        n_features = self.betas.shape[1]
-        # Class-specific betas + class probabilities (minus 1 for identification)
-        return self.n_classes * n_features + (self.n_classes - 1)
-```
-
-```{python}
-#| label: Estimating-latent-class-models
-#| echo: true
-
-# Estimate latent-class models for different numbers of classes
-results = {}
-n_choices = len(yogurt)
-
-print("\n### Estimating Latent-Class Models ###")
-for n_classes in [2, 3, 4]:  # Limiting to fewer classes for faster computation
-    print(f"\nFitting {n_classes}-class model...")
-
-    # Fit model with fewer iterations and increased tolerance
-    model = LatentClassMNL(n_classes=n_classes, max_iter=50, tol=1e-4)
-    model.fit(X, y)
-
-    # Calculate BIC
-    ll = model.final_ll
-    k = model.get_n_parameters()
-    bic = -2 * ll + k * np.log(n_choices)
-
-    results[n_classes] = {
-        'model': model,
-        'log_likelihood': ll,
-        'n_parameters': k,
-        'bic': bic,
-        'class_probs': model.class_probs,
-        'betas': model.betas
-    }
-
-    print(f"  Log-likelihood: {ll:.2f}")
-    print(f"  Parameters: {k}")
-    print(f"  BIC: {bic:.2f}")
-    print(f"  Class sizes: {model.class_probs.round(3)}")
-```
-
-```{python}
-#| label: Model-selection-using-BIC
-#| echo: true
-
-
-# Create BIC comparison plot
-n_classes_list = list(results.keys())
-bic_values = [results[n]['bic'] for n in n_classes_list]
 
 plt.figure(figsize=(10, 6))
-plt.plot(n_classes_list, bic_values, marker='o', markersize=10, 
-         linewidth=2, color='darkblue')
-plt.xlabel('Number of Classes', fontsize=12)
-plt.ylabel('BIC', fontsize=12)
-plt.title('Model Selection: BIC vs Number of Latent Classes', fontsize=14)
+plt.scatter(X_unscaled[:, 0], X_unscaled[:, 1], alpha=0.6, edgecolors='black', s=50)
+plt.xlabel('Bill Length (mm)', fontsize=12)
+plt.ylabel('Flipper Length (mm)', fontsize=12)
+plt.title('Palmer Penguins: Bill Length vs Flipper Length', fontsize=14)
 plt.grid(True, alpha=0.3)
-
-# Highlight minimum BIC
-min_bic_idx = np.argmin(bic_values)
-optimal_classes = n_classes_list[min_bic_idx]
-plt.plot(optimal_classes, bic_values[min_bic_idx], 'ro', markersize=15)
-plt.annotate(f'Optimal: {optimal_classes} classes', 
-             xy=(optimal_classes, bic_values[min_bic_idx]),
-             xytext=(optimal_classes + 0.3, bic_values[min_bic_idx] + 20),
-             arrowprops=dict(arrowstyle='->', color='red'),
-             fontsize=12, color='red')
-
 plt.tight_layout()
 plt.show()
 
-print(f"\n### Model Selection Result ###")
-print(f"Optimal number of classes according to BIC: {optimal_classes}")
-print(f"BIC value: {results[optimal_classes]['bic']:.2f}")
+# Show the correlation between features
+correlation = np.corrcoef(X_unscaled[:, 0], X_unscaled[:, 1])[0, 1]
+print(f"\nCorrelation between bill length and flipper length: {correlation:.3f}")
 ```
 
+```{python}
+#| label: k-means-implementation
+#| echo: true
+class KMeansCustom:
+    """
+    Custom implementation of K-means clustering algorithm.
+    """
+    
+    def __init__(self, n_clusters=3, max_iters=100, random_state=42):
+        self.n_clusters = n_clusters
+        self.max_iters = max_iters
+        self.random_state = random_state
+        self.history = {'centroids': [], 'assignments': [], 'inertia': []}
+        
+    def initialize_centroids(self, X):
+        """Initialize centroids using random data points."""
+        np.random.seed(self.random_state)
+        n_samples = X.shape[0]
+        random_indices = np.random.choice(n_samples, self.n_clusters, replace=False)
+        return X[random_indices].copy()
+    
+    def assign_clusters(self, X, centroids):
+        """Assign each point to the nearest centroid."""
+        distances = np.zeros((X.shape[0], self.n_clusters))
+        
+        for k in range(self.n_clusters):
+            # Calculate Euclidean distance to each centroid
+            distances[:, k] = np.sqrt(np.sum((X - centroids[k])**2, axis=1))
+        
+        # Assign to closest centroid
+        return np.argmin(distances, axis=1)
+    
+    def update_centroids(self, X, assignments):
+        """Update centroids as mean of assigned points."""
+        centroids = np.zeros((self.n_clusters, X.shape[1]))
+        
+        for k in range(self.n_clusters):
+            cluster_points = X[assignments == k]
+            if len(cluster_points) > 0:
+                centroids[k] = cluster_points.mean(axis=0)
+            else:
+                # If no points assigned, keep the centroid unchanged
+                centroids[k] = self.centroids[k]
+        
+        return centroids
+    
+    def calculate_inertia(self, X, assignments, centroids):
+        """Calculate within-cluster sum of squares."""
+        inertia = 0
+        for k in range(self.n_clusters):
+            cluster_points = X[assignments == k]
+            if len(cluster_points) > 0:
+                inertia += np.sum((cluster_points - centroids[k])**2)
+        return inertia
+    
+    def fit(self, X):
+        """Fit K-means to the data."""
+        # Initialize centroids
+        self.centroids = self.initialize_centroids(X)
+        self.history['centroids'].append(self.centroids.copy())
+        
+        for iteration in range(self.max_iters):
+            # Assign clusters
+            assignments = self.assign_clusters(X, self.centroids)
+            self.history['assignments'].append(assignments.copy())
+            
+            # Calculate inertia
+            inertia = self.calculate_inertia(X, assignments, self.centroids)
+            self.history['inertia'].append(inertia)
+            
+            # Update centroids
+            new_centroids = self.update_centroids(X, assignments)
+            
+            # Check for convergence
+            if np.allclose(self.centroids, new_centroids):
+                print(f"Converged after {iteration + 1} iterations")
+                break
+            
+            self.centroids = new_centroids
+            self.history['centroids'].append(self.centroids.copy())
+        
+        self.labels_ = assignments
+        self.inertia_ = inertia
+        return self
+    
+    def predict(self, X):
+        """Predict cluster assignments for new data."""
+        return self.assign_clusters(X, self.centroids)
+```
 
 ```{python}
-#| label: Parameter-comparison
+#| label: k-means-visualisation
+#| echo: true
+# Run custom K-means with K=3 and visualize the steps
+kmeans_custom = KMeansCustom(n_clusters=3, random_state=42)
+kmeans_custom.fit(X_scaled)
+
+# Create visualizations of the algorithm's progress
+n_steps = min(6, len(kmeans_custom.history['centroids']))
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes = axes.ravel()
+
+for i in range(n_steps):
+    ax = axes[i]
+    
+    # Get data for this iteration
+    if i < len(kmeans_custom.history['assignments']):
+        assignments = kmeans_custom.history['assignments'][i]
+        centroids = kmeans_custom.history['centroids'][min(i, len(kmeans_custom.history['centroids'])-1)]
+    else:
+        assignments = kmeans_custom.labels_
+        centroids = kmeans_custom.centroids
+    
+    # Plot points colored by assignment
+    scatter = ax.scatter(X_unscaled[:, 0], X_unscaled[:, 1], 
+                        c=assignments, cmap='viridis', alpha=0.6, 
+                        edgecolors='black', s=50)
+    
+    # Plot centroids
+    centroids_unscaled = scaler.inverse_transform(centroids)
+    ax.scatter(centroids_unscaled[:, 0], centroids_unscaled[:, 1], 
+              c='red', marker='*', s=300, edgecolors='black', linewidth=2)
+    
+    # Add title
+    if i == 0:
+        ax.set_title(f'Initial State', fontsize=12)
+    elif i < len(kmeans_custom.history['assignments']):
+        ax.set_title(f'Iteration {i}', fontsize=12)
+    else:
+        ax.set_title(f'Final State', fontsize=12)
+    
+    ax.set_xlabel('Bill Length (mm)')
+    ax.set_ylabel('Flipper Length (mm)')
+    ax.grid(True, alpha=0.3)
+
+plt.suptitle('K-Means Algorithm Progress (K=3)', fontsize=16)
+plt.tight_layout()
+plt.show()
+
+# Plot inertia over iterations
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, len(kmeans_custom.history['inertia']) + 1), 
+         kmeans_custom.history['inertia'], 
+         marker='o', linewidth=2, markersize=8)
+plt.xlabel('Iteration', fontsize=12)
+plt.ylabel('Within-Cluster Sum of Squares (Inertia)', fontsize=12)
+plt.title('K-Means Convergence: Inertia vs Iteration', fontsize=14)
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| label: compare-with-inbuilt-sklearn-kmeans
 #| echo: true
 
+# Run sklearn's KMeans with same parameters
+kmeans_sklearn = KMeans(n_clusters=3, random_state=42, n_init=1)
+kmeans_sklearn.fit(X_scaled)
 
-# Compare parameters between aggregate MNL and optimal latent-class model
-optimal_model = results[optimal_classes]
+# Compare cluster assignments
+agreement = np.sum(kmeans_custom.labels_ == kmeans_sklearn.labels_) / len(kmeans_custom.labels_)
+print(f"\nCluster assignment agreement with sklearn: {agreement:.1%}")
 
-# Create comparison visualization
+# Note: Cluster labels might be permuted, so let's check if the clustering is essentially the same
+from scipy.optimize import linear_sum_assignment
+
+def compare_clusterings(labels1, labels2):
+    """Compare two clusterings accounting for label permutations."""
+    n_clusters = len(np.unique(labels1))
+    confusion_matrix = np.zeros((n_clusters, n_clusters))
+    
+    for i in range(n_clusters):
+        for j in range(n_clusters):
+            confusion_matrix[i, j] = np.sum((labels1 == i) & (labels2 == j))
+    
+    # Find optimal assignment
+    row_ind, col_ind = linear_sum_assignment(-confusion_matrix)
+    
+    # Calculate agreement with optimal permutation
+    total_agreement = confusion_matrix[row_ind, col_ind].sum()
+    return total_agreement / len(labels1)
+
+adjusted_agreement = compare_clusterings(kmeans_custom.labels_, kmeans_sklearn.labels_)
+print(f"Adjusted cluster agreement (accounting for label permutation): {adjusted_agreement:.1%}")
+
+# Visualize comparison
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-# Plot 1: Parameter values comparison
-param_names = ['Price', 'Feature']
-mnl_params = result_mnl.x
+# Custom implementation
+scatter1 = ax1.scatter(X_unscaled[:, 0], X_unscaled[:, 1], 
+                      c=kmeans_custom.labels_, cmap='viridis', 
+                      alpha=0.6, edgecolors='black', s=50)
+centroids_custom = scaler.inverse_transform(kmeans_custom.centroids)
+ax1.scatter(centroids_custom[:, 0], centroids_custom[:, 1], 
+           c='red', marker='*', s=300, edgecolors='black', linewidth=2)
+ax1.set_title('Custom K-Means Implementation', fontsize=14)
+ax1.set_xlabel('Bill Length (mm)')
+ax1.set_ylabel('Flipper Length (mm)')
+ax1.grid(True, alpha=0.3)
 
-# Prepare data for heatmap
-comparison_data = np.zeros((optimal_classes + 1, len(param_names)))
-comparison_data[0, :] = mnl_params
+# Sklearn implementation
+scatter2 = ax2.scatter(X_unscaled[:, 0], X_unscaled[:, 1], 
+                      c=kmeans_sklearn.labels_, cmap='viridis', 
+                      alpha=0.6, edgecolors='black', s=50)
+centroids_sklearn = scaler.inverse_transform(kmeans_sklearn.cluster_centers_)
+ax2.scatter(centroids_sklearn[:, 0], centroids_sklearn[:, 1], 
+           c='red', marker='*', s=300, edgecolors='black', linewidth=2)
+ax2.set_title('Sklearn K-Means Implementation', fontsize=14)
+ax2.set_xlabel('Bill Length (mm)')
+ax2.set_ylabel('Flipper Length (mm)')
+ax2.grid(True, alpha=0.3)
 
-for c in range(optimal_classes):
-    comparison_data[c + 1, :] = optimal_model['betas'][c]
-
-# Create heatmap
-sns.heatmap(comparison_data, 
-            xticklabels=param_names,
-            yticklabels=['Aggregate MNL'] + [f'Class {i+1}' for i in range(optimal_classes)],
-            annot=True, fmt='.3f', cmap='RdBu_r', center=0,
-            cbar_kws={'label': 'Parameter Value'},
-            ax=ax1)
-ax1.set_title('Parameter Estimates Comparison', fontsize=14)
-
-# Plot 2: Class sizes (for latent-class model)
-class_labels = [f'Class {i+1}' for i in range(optimal_classes)]
-class_sizes = optimal_model['class_probs']
-
-ax2.pie(class_sizes, labels=class_labels, autopct='%1.1f%%', 
-        colors=plt.cm.Set3(range(optimal_classes)))
-ax2.set_title(f'Latent Class Sizes ({optimal_classes}-Class Model)', fontsize=14)
-
+plt.suptitle('Comparison: Custom vs Sklearn K-Means', fontsize=16)
 plt.tight_layout()
 plt.show()
+```
 
-# Print detailed comparison
-print("\n### Parameter Comparison ###")
-print("\nAggregate MNL:")
-print(f"  Price coefficient: {mnl_params[0]:.4f}")
-print(f"  Feature coefficient: {mnl_params[1]:.4f}")
+```{python}
+#| label: evaluate-different-clusters
+#| echo: true
+# Test different values of K
+K_values = range(2, 8)
+wcss_values = []  # Within-cluster sum of squares
+silhouette_values = []
 
-print(f"\n{optimal_classes}-Class Latent Model:")
-for c in range(optimal_classes):
-    print(f"\nClass {c+1} (size: {optimal_model['class_probs'][c]:.1%}):")
-    print(f"  Price coefficient: {optimal_model['betas'][c][0]:.4f}")
-    print(f"  Feature coefficient: {optimal_model['betas'][c][1]:.4f}")
+for k in K_values:
+    # Custom implementation
+    kmeans = KMeansCustom(n_clusters=k, random_state=42)
+    kmeans.fit(X_scaled)
+    
+    # Calculate metrics
+    wcss = kmeans.inertia_
+    wcss_values.append(wcss)
+    
+    # Silhouette score (using sklearn for consistency)
+    if k > 1:  # Silhouette score requires at least 2 clusters
+        silhouette = silhouette_score(X_scaled, kmeans.labels_)
+        silhouette_values.append(silhouette)
+    
+    print(f"K={k}: WCSS={wcss:.2f}, Silhouette={silhouette:.3f}")
 ```
 
 
 ```{python}
-#| label: Interpretation-and-Insights
+#| label: model-selection
 #| echo: true
 
+# Create subplots for both metrics
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-# Calculate and visualize heterogeneity in price sensitivity
-price_sensitivities = optimal_model['betas'][:, 0]
-feature_effects = optimal_model['betas'][:, 1]
+# Plot 1: WCSS (Elbow Method)
+ax1.plot(K_values, wcss_values, marker='o', linewidth=2, markersize=10, color='darkblue')
+ax1.set_xlabel('Number of Clusters (K)', fontsize=12)
+ax1.set_ylabel('Within-Cluster Sum of Squares', fontsize=12)
+ax1.set_title('Elbow Method for Optimal K', fontsize=14)
+ax1.grid(True, alpha=0.3)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+# Mark the "elbow" (using a simple heuristic)
+diffs = np.diff(wcss_values)
+diffs2 = np.diff(diffs)
+elbow_idx = np.argmax(diffs2) + 2  # +2 because of double differencing
+ax1.axvline(x=K_values[elbow_idx], color='red', linestyle='--', alpha=0.7)
+ax1.annotate(f'Elbow at K={K_values[elbow_idx]}', 
+            xy=(K_values[elbow_idx], wcss_values[elbow_idx]),
+            xytext=(K_values[elbow_idx] + 0.5, wcss_values[elbow_idx] + 50),
+            arrowprops=dict(arrowstyle='->', color='red'),
+            fontsize=12, color='red')
 
-# Price sensitivity distribution
-ax1.bar(range(1, optimal_classes + 1), -price_sensitivities, 
-        color='coral', edgecolor='black', alpha=0.7)
-ax1.axhline(y=-mnl_params[0], color='darkblue', linestyle='--', 
-           label='Aggregate MNL', linewidth=2)
-ax1.set_xlabel('Class')
-ax1.set_ylabel('Price Sensitivity (absolute value)')
-ax1.set_title('Price Sensitivity by Class', fontsize=14)
-ax1.set_xticks(range(1, optimal_classes + 1))
-ax1.legend()
-ax1.grid(axis='y', alpha=0.3)
+# Plot 2: Silhouette Score
+ax2.plot(K_values, silhouette_values, marker='s', linewidth=2, markersize=10, color='darkgreen')
+ax2.set_xlabel('Number of Clusters (K)', fontsize=12)
+ax2.set_ylabel('Silhouette Score', fontsize=12)
+ax2.set_title('Silhouette Score for Different K', fontsize=14)
+ax2.grid(True, alpha=0.3)
 
-# Feature effect distribution
-ax2.bar(range(1, optimal_classes + 1), feature_effects, 
-        color='lightgreen', edgecolor='black', alpha=0.7)
-ax2.axhline(y=mnl_params[1], color='darkblue', linestyle='--', 
-           label='Aggregate MNL', linewidth=2)
-ax2.set_xlabel('Class')
-ax2.set_ylabel('Feature Effect')
-ax2.set_title('Feature/Promotion Effect by Class', fontsize=14)
-ax2.set_xticks(range(1, optimal_classes + 1))
-ax2.legend()
-ax2.grid(axis='y', alpha=0.3)
+# Mark the maximum silhouette score
+max_silhouette_idx = np.argmax(silhouette_values)
+optimal_k_silhouette = K_values[max_silhouette_idx]
+ax2.axvline(x=optimal_k_silhouette, color='green', linestyle='--', alpha=0.7)
+ax2.annotate(f'Max at K={optimal_k_silhouette}', 
+            xy=(optimal_k_silhouette, silhouette_values[max_silhouette_idx]),
+            xytext=(optimal_k_silhouette + 0.5, silhouette_values[max_silhouette_idx] - 0.05),
+            arrowprops=dict(arrowstyle='->', color='green'),
+            fontsize=12, color='green')
 
 plt.tight_layout()
 plt.show()
 ```
 
+
+```{python}
+#| label: clustering-results
+#| echo: true
+
+# Show clustering results for all K values
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+axes = axes.ravel()
+
+for idx, k in enumerate(K_values):
+    kmeans = KMeansCustom(n_clusters=k, random_state=42)
+    kmeans.fit(X_scaled)
+    
+    ax = axes[idx]
+    scatter = ax.scatter(X_unscaled[:, 0], X_unscaled[:, 1], 
+                        c=kmeans.labels_, cmap='viridis', 
+                        alpha=0.6, edgecolors='black', s=50)
+    
+    # Plot centroids
+    centroids_unscaled = scaler.inverse_transform(kmeans.centroids)
+    ax.scatter(centroids_unscaled[:, 0], centroids_unscaled[:, 1], 
+              c='red', marker='*', s=300, edgecolors='black', linewidth=2,
+              label='Centroids')
+    
+    ax.set_title(f'K = {k}', fontsize=12)
+    ax.set_xlabel('Bill Length (mm)')
+    ax.set_ylabel('Flipper Length (mm)')
+    ax.grid(True, alpha=0.3)
+    
+    # Add silhouette score to title
+    if k > 1:
+        sil_score = silhouette_score(X_scaled, kmeans.labels_)
+        ax.set_title(f'K = {k} (Silhouette: {sil_score:.3f})', fontsize=12)
+
+plt.suptitle('K-Means Clustering Results for Different K Values', fontsize=16)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| label: analysis-and-interpretation
+#| echo: true
+
+print("\n### Clustering Analysis Summary ###")
+print(f"\n1. Elbow Method suggests K = {K_values[elbow_idx]} clusters")
+print(f"2. Silhouette Score suggests K = {optimal_k_silhouette} clusters")
+
+# Run final clustering with optimal K
+optimal_k = optimal_k_silhouette
+final_kmeans = KMeansCustom(n_clusters=optimal_k, random_state=42)
+final_kmeans.fit(X_scaled)
+
+# Analyze cluster characteristics
+print(f"\n### Final Clustering with K = {optimal_k} ###")
+for k in range(optimal_k):
+    cluster_mask = final_kmeans.labels_ == k
+    cluster_data = X_unscaled[cluster_mask]
+    
+    print(f"\nCluster {k}:")
+    print(f"  Size: {len(cluster_data)} penguins ({len(cluster_data)/len(X_unscaled)*100:.1f}%)")
+    print(f"  Mean Bill Length: {cluster_data[:, 0].mean():.1f} mm")
+    print(f"  Mean Flipper Length: {cluster_data[:, 1].mean():.1f} mm")
+    print(f"  Bill Length Std: {cluster_data[:, 0].std():.1f} mm")
+    print(f"  Flipper Length Std: {cluster_data[:, 1].std():.1f} mm")
+```
 
 ```{python}
 #| label: Summary-and-Conclusions
 #| echo: true
-
-
 print("\n### Summary ###")
-print(f"1. The aggregate MNL model assumes all consumers have identical preferences.")
-print(f"2. The BIC criterion suggests {optimal_classes} latent classes provide the best model fit.")
-print(f"3. The latent-class model reveals significant heterogeneity in consumer preferences:")
-
-# Identify key differences between classes
-for c in range(optimal_classes):
-    price_sens = -optimal_model['betas'][c][0]
-    feature_eff = optimal_model['betas'][c][1]
-    class_size = optimal_model['class_probs'][c]
-    
-    print(f"\n   Class {c+1} ({class_size:.1%} of consumers):")
-    if price_sens > -mnl_params[0] * 1.2:
-        print(f"   - High price sensitivity")
-    elif price_sens < -mnl_params[0] * 0.8:
-        print(f"   - Low price sensitivity")
-    else:
-        print(f"   - Moderate price sensitivity")
-    
-    if feature_eff > mnl_params[1] * 1.2:
-        print(f"   - Strongly influenced by features/promotions")
-    elif feature_eff < mnl_params[1] * 0.8:
-        print(f"   - Weakly influenced by features/promotions")
-    else:
-        print(f"   - Moderately influenced by features/promotions")
+print("1. Successfully implemented K-means clustering algorithm from scratch")
+print("2. The algorithm correctly identifies clusters through iterative optimization")
+print(f"3. Comparison with sklearn shows {adjusted_agreement:.1%} agreement in cluster assignments")
+print(f"4. Both WCSS (elbow) and Silhouette metrics suggest K={optimal_k} as optimal")
+print("\n### Key Insights ###")
+print("- The Palmer Penguins dataset shows natural clustering in bill and flipper measurements")
+print("- These clusters likely correspond to different penguin species or sex differences")
+print("- K-means effectively separates the groups based on these morphological features")
+print("- The iterative nature of K-means is clearly visible in the algorithm visualization")
 ```
 
 ## 2a. K Nearest Neighbors

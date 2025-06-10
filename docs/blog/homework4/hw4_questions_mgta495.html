@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Vidhi Vashishth">
-<meta name="dcterms.date" content="2025-06-09">
 
-<title>Machine Learning – Vidhi’s Website</title>
+<title>2a. K Nearest Neighbours – Vidhi’s Website</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -147,41 +145,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#a.-k-means" id="toc-a.-k-means" class="nav-link active" data-scroll-target="#a.-k-means">1a. K-Means</a></li>
-  <li><a href="#a.-k-nearest-neighbors" id="toc-a.-k-nearest-neighbors" class="nav-link" data-scroll-target="#a.-k-nearest-neighbors">2a. K Nearest Neighbors</a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Machine Learning</h1>
+<h1 class="title">2a. K Nearest Neighbours</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Vidhi Vashishth </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">June 9, 2025</p>
-    </div>
-  </div>
   
     
   </div>
@@ -191,10 +170,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="a.-k-means" class="level2">
-<h2 class="anchored" data-anchor-id="a.-k-means">1a. K-Means</h2>
-<p>In this analysis, I implement the K-means clustering algorithm from scratch and apply it to the Palmer Penguins dataset. K-means is an unsupervised learning algorithm that partitions data into K clusters by iteratively assigning points to the nearest cluster center and updating centers based on the assigned points.</p>
-<div id="data-loading-and-prep" class="cell" data-execution_count="1">
+<div id="cell-1" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -205,19 +181,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">'ignore'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="c429709e" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the penguins dataset</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> pd.read_csv(<span class="st">'palmer_penguins.csv'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>penguins_clean <span class="op">=</span> penguins[[<span class="st">'bill_length_mm'</span>, <span class="st">'flipper_length_mm'</span>]].dropna()</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Dataset shape after cleaning: </span><span class="sc">{</span>penguins_clean<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Removed </span><span class="sc">{</span><span class="bu">len</span>(penguins) <span class="op">-</span> <span class="bu">len</span>(penguins_clean)<span class="sc">}</span><span class="ss"> rows with missing values"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-2" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> pd.read_csv(<span class="st">'blog/homework4/palmer_penguins.csv'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>penguins_clean <span class="op">=</span> penguins[[<span class="st">'bill_length_mm'</span>, <span class="st">'flipper_length_mm'</span>]].dropna()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Dataset shape after cleaning: </span><span class="sc">{</span>penguins_clean<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Removed </span><span class="sc">{</span><span class="bu">len</span>(penguins) <span class="op">-</span> <span class="bu">len</span>(penguins_clean)<span class="sc">}</span><span class="ss"> rows with missing values"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Dataset shape after cleaning: (333, 2)
 Removed 0 rows with missing values</code></pre>
 </div>
 </div>
-<div id="b41747e5" class="cell" data-execution_count="3">
+<div id="cell-3" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display basic information about the dataset</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Basic statistics of the features:"</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(penguins_clean.describe())</span>
@@ -245,7 +220,7 @@ min         32.100000         172.000000
 max         59.600000         231.000000</code></pre>
 </div>
 </div>
-<div id="cell-visualise-original-data" class="cell" data-execution_count="4">
+<div id="cell-4" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>plt.scatter(X_unscaled[:, <span class="dv">0</span>], X_unscaled[:, <span class="dv">1</span>], alpha<span class="op">=</span><span class="fl">0.6</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Bill Length (mm)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
@@ -261,7 +236,7 @@ max         59.600000         231.000000</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/visualise-original-data-output-1.png" id="visualise-original-data" width="951" height="565" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -270,7 +245,7 @@ max         59.600000         231.000000</code></pre>
 Correlation between bill length and flipper length: 0.653</code></pre>
 </div>
 </div>
-<div id="k-means-implementation" class="cell" data-execution_count="5">
+<div id="cell-5" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> KMeansCustom:</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Custom implementation of K-means clustering algorithm.</span></span>
@@ -357,143 +332,141 @@ Correlation between bill length and flipper length: 0.653</code></pre>
 <span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Predict cluster assignments for new data."""</span></span>
 <span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.assign_clusters(X, <span class="va">self</span>.centroids)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="k-means-visualisation" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run custom K-means with K=3 and visualize the steps</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>kmeans_custom <span class="op">=</span> KMeansCustom(n_clusters<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>kmeans_custom.fit(X_scaled)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create visualizations of the algorithm's progress</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>n_steps <span class="op">=</span> <span class="bu">min</span>(<span class="dv">6</span>, <span class="bu">len</span>(kmeans_custom.history[<span class="st">'centroids'</span>]))</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">10</span>))</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>axes <span class="op">=</span> axes.ravel()</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_steps):</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> axes[i]</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get data for this iteration</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">&lt;</span> <span class="bu">len</span>(kmeans_custom.history[<span class="st">'assignments'</span>]):</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        assignments <span class="op">=</span> kmeans_custom.history[<span class="st">'assignments'</span>][i]</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        centroids <span class="op">=</span> kmeans_custom.history[<span class="st">'centroids'</span>][<span class="bu">min</span>(i, <span class="bu">len</span>(kmeans_custom.history[<span class="st">'centroids'</span>])<span class="op">-</span><span class="dv">1</span>)]</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        assignments <span class="op">=</span> kmeans_custom.labels_</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        centroids <span class="op">=</span> kmeans_custom.centroids</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot points colored by assignment</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    scatter <span class="op">=</span> ax.scatter(X_unscaled[:, <span class="dv">0</span>], X_unscaled[:, <span class="dv">1</span>], </span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>                        c<span class="op">=</span>assignments, cmap<span class="op">=</span><span class="st">'viridis'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, </span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>                        edgecolors<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot centroids</span></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    centroids_unscaled <span class="op">=</span> scaler.inverse_transform(centroids)</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    ax.scatter(centroids_unscaled[:, <span class="dv">0</span>], centroids_unscaled[:, <span class="dv">1</span>], </span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>              c<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">300</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add title</span></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f'Initial State'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> i <span class="op">&lt;</span> <span class="bu">len</span>(kmeans_custom.history[<span class="st">'assignments'</span>]):</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f'Iteration </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f'Final State'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">'Bill Length (mm)'</span>)</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">'Flipper Length (mm)'</span>)</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'K-Means Algorithm Progress (K=3)'</span>, fontsize<span class="op">=</span><span class="dv">16</span>)</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot inertia over iterations</span></span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(kmeans_custom.history[<span class="st">'inertia'</span>]) <span class="op">+</span> <span class="dv">1</span>), </span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>         kmeans_custom.history[<span class="st">'inertia'</span>], </span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>         marker<span class="op">=</span><span class="st">'o'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Iteration'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Within-Cluster Sum of Squares (Inertia)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'K-Means Convergence: Inertia vs Iteration'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-6" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>kmeans_custom <span class="op">=</span> KMeansCustom(n_clusters<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>kmeans_custom.fit(X_scaled)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create visualizations of the algorithm's progress</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>n_steps <span class="op">=</span> <span class="bu">min</span>(<span class="dv">6</span>, <span class="bu">len</span>(kmeans_custom.history[<span class="st">'centroids'</span>]))</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">10</span>))</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>axes <span class="op">=</span> axes.ravel()</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_steps):</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> axes[i]</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get data for this iteration</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">&lt;</span> <span class="bu">len</span>(kmeans_custom.history[<span class="st">'assignments'</span>]):</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        assignments <span class="op">=</span> kmeans_custom.history[<span class="st">'assignments'</span>][i]</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        centroids <span class="op">=</span> kmeans_custom.history[<span class="st">'centroids'</span>][<span class="bu">min</span>(i, <span class="bu">len</span>(kmeans_custom.history[<span class="st">'centroids'</span>])<span class="op">-</span><span class="dv">1</span>)]</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        assignments <span class="op">=</span> kmeans_custom.labels_</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        centroids <span class="op">=</span> kmeans_custom.centroids</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot points colored by assignment</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    scatter <span class="op">=</span> ax.scatter(X_unscaled[:, <span class="dv">0</span>], X_unscaled[:, <span class="dv">1</span>], </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>                        c<span class="op">=</span>assignments, cmap<span class="op">=</span><span class="st">'viridis'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, </span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>                        edgecolors<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot centroids</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    centroids_unscaled <span class="op">=</span> scaler.inverse_transform(centroids)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    ax.scatter(centroids_unscaled[:, <span class="dv">0</span>], centroids_unscaled[:, <span class="dv">1</span>], </span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>              c<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">300</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add title</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f'Initial State'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> i <span class="op">&lt;</span> <span class="bu">len</span>(kmeans_custom.history[<span class="st">'assignments'</span>]):</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f'Iteration </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f'Final State'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">'Bill Length (mm)'</span>)</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">'Flipper Length (mm)'</span>)</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'K-Means Algorithm Progress (K=3)'</span>, fontsize<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot inertia over iterations</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(kmeans_custom.history[<span class="st">'inertia'</span>]) <span class="op">+</span> <span class="dv">1</span>), </span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>         kmeans_custom.history[<span class="st">'inertia'</span>], </span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>         marker<span class="op">=</span><span class="st">'o'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Iteration'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Within-Cluster Sum of Squares (Inertia)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'K-Means Convergence: Inertia vs Iteration'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Converged after 13 iterations</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/k-means-visualisation-output-2.png" id="k-means-visualisation-1" width="1429" height="944" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-7-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/k-means-visualisation-output-3.png" id="k-means-visualisation-2" width="951" height="565" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-7-output-3.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-compare-with-inbuilt-sklearn-kmeans" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sklearn's KMeans with same parameters</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>kmeans_sklearn <span class="op">=</span> KMeans(n_clusters<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>, n_init<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>kmeans_sklearn.fit(X_scaled)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare cluster assignments</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>agreement <span class="op">=</span> np.<span class="bu">sum</span>(kmeans_custom.labels_ <span class="op">==</span> kmeans_sklearn.labels_) <span class="op">/</span> <span class="bu">len</span>(kmeans_custom.labels_)</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Cluster assignment agreement with sklearn: </span><span class="sc">{</span>agreement<span class="sc">:.1%}</span><span class="ss">"</span>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Cluster labels might be permuted, so let's check if the clustering is essentially the same</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> linear_sum_assignment</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_clusterings(labels1, labels2):</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compare two clusterings accounting for label permutations."""</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    n_clusters <span class="op">=</span> <span class="bu">len</span>(np.unique(labels1))</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    confusion_matrix <span class="op">=</span> np.zeros((n_clusters, n_clusters))</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_clusters):</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(n_clusters):</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>            confusion_matrix[i, j] <span class="op">=</span> np.<span class="bu">sum</span>((labels1 <span class="op">==</span> i) <span class="op">&amp;</span> (labels2 <span class="op">==</span> j))</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find optimal assignment</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    row_ind, col_ind <span class="op">=</span> linear_sum_assignment(<span class="op">-</span>confusion_matrix)</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate agreement with optimal permutation</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    total_agreement <span class="op">=</span> confusion_matrix[row_ind, col_ind].<span class="bu">sum</span>()</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total_agreement <span class="op">/</span> <span class="bu">len</span>(labels1)</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>adjusted_agreement <span class="op">=</span> compare_clusterings(kmeans_custom.labels_, kmeans_sklearn.labels_)</span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Adjusted cluster agreement (accounting for label permutation): </span><span class="sc">{</span>adjusted_agreement<span class="sc">:.1%}</span><span class="ss">"</span>)</span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize comparison</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>))</span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom implementation</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>scatter1 <span class="op">=</span> ax1.scatter(X_unscaled[:, <span class="dv">0</span>], X_unscaled[:, <span class="dv">1</span>], </span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>                      c<span class="op">=</span>kmeans_custom.labels_, cmap<span class="op">=</span><span class="st">'viridis'</span>, </span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>                      alpha<span class="op">=</span><span class="fl">0.6</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>centroids_custom <span class="op">=</span> scaler.inverse_transform(kmeans_custom.centroids)</span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>ax1.scatter(centroids_custom[:, <span class="dv">0</span>], centroids_custom[:, <span class="dv">1</span>], </span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>           c<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">300</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Custom K-Means Implementation'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Bill Length (mm)'</span>)</span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Flipper Length (mm)'</span>)</span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>ax1.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Sklearn implementation</span></span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>scatter2 <span class="op">=</span> ax2.scatter(X_unscaled[:, <span class="dv">0</span>], X_unscaled[:, <span class="dv">1</span>], </span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>                      c<span class="op">=</span>kmeans_sklearn.labels_, cmap<span class="op">=</span><span class="st">'viridis'</span>, </span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>                      alpha<span class="op">=</span><span class="fl">0.6</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>centroids_sklearn <span class="op">=</span> scaler.inverse_transform(kmeans_sklearn.cluster_centers_)</span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>ax2.scatter(centroids_sklearn[:, <span class="dv">0</span>], centroids_sklearn[:, <span class="dv">1</span>], </span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>           c<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">300</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Sklearn K-Means Implementation'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Bill Length (mm)'</span>)</span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Flipper Length (mm)'</span>)</span>
-<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>ax2.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'Comparison: Custom vs Sklearn K-Means'</span>, fontsize<span class="op">=</span><span class="dv">16</span>)</span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-7" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>kmeans_sklearn <span class="op">=</span> KMeans(n_clusters<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>, n_init<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>kmeans_sklearn.fit(X_scaled)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare cluster assignments</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>agreement <span class="op">=</span> np.<span class="bu">sum</span>(kmeans_custom.labels_ <span class="op">==</span> kmeans_sklearn.labels_) <span class="op">/</span> <span class="bu">len</span>(kmeans_custom.labels_)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Cluster assignment agreement with sklearn: </span><span class="sc">{</span>agreement<span class="sc">:.1%}</span><span class="ss">"</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Cluster labels might be permuted, so let's check if the clustering is essentially the same</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> linear_sum_assignment</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_clusterings(labels1, labels2):</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compare two clusterings accounting for label permutations."""</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    n_clusters <span class="op">=</span> <span class="bu">len</span>(np.unique(labels1))</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    confusion_matrix <span class="op">=</span> np.zeros((n_clusters, n_clusters))</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_clusters):</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(n_clusters):</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>            confusion_matrix[i, j] <span class="op">=</span> np.<span class="bu">sum</span>((labels1 <span class="op">==</span> i) <span class="op">&amp;</span> (labels2 <span class="op">==</span> j))</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find optimal assignment</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    row_ind, col_ind <span class="op">=</span> linear_sum_assignment(<span class="op">-</span>confusion_matrix)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate agreement with optimal permutation</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    total_agreement <span class="op">=</span> confusion_matrix[row_ind, col_ind].<span class="bu">sum</span>()</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total_agreement <span class="op">/</span> <span class="bu">len</span>(labels1)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>adjusted_agreement <span class="op">=</span> compare_clusterings(kmeans_custom.labels_, kmeans_sklearn.labels_)</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Adjusted cluster agreement (accounting for label permutation): </span><span class="sc">{</span>adjusted_agreement<span class="sc">:.1%}</span><span class="ss">"</span>)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize comparison</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>))</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom implementation</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>scatter1 <span class="op">=</span> ax1.scatter(X_unscaled[:, <span class="dv">0</span>], X_unscaled[:, <span class="dv">1</span>], </span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>                      c<span class="op">=</span>kmeans_custom.labels_, cmap<span class="op">=</span><span class="st">'viridis'</span>, </span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>                      alpha<span class="op">=</span><span class="fl">0.6</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>centroids_custom <span class="op">=</span> scaler.inverse_transform(kmeans_custom.centroids)</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>ax1.scatter(centroids_custom[:, <span class="dv">0</span>], centroids_custom[:, <span class="dv">1</span>], </span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>           c<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">300</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Custom K-Means Implementation'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Bill Length (mm)'</span>)</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Flipper Length (mm)'</span>)</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>ax1.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Sklearn implementation</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>scatter2 <span class="op">=</span> ax2.scatter(X_unscaled[:, <span class="dv">0</span>], X_unscaled[:, <span class="dv">1</span>], </span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>                      c<span class="op">=</span>kmeans_sklearn.labels_, cmap<span class="op">=</span><span class="st">'viridis'</span>, </span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>                      alpha<span class="op">=</span><span class="fl">0.6</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>centroids_sklearn <span class="op">=</span> scaler.inverse_transform(kmeans_sklearn.cluster_centers_)</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>ax2.scatter(centroids_sklearn[:, <span class="dv">0</span>], centroids_sklearn[:, <span class="dv">1</span>], </span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>           c<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">300</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Sklearn K-Means Implementation'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Bill Length (mm)'</span>)</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Flipper Length (mm)'</span>)</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>ax2.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'Comparison: Custom vs Sklearn K-Means'</span>, fontsize<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Cluster assignment agreement with sklearn: 100.0%
@@ -502,32 +475,31 @@ Adjusted cluster agreement (accounting for label permutation): 100.0%</code></pr
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/compare-with-inbuilt-sklearn-kmeans-output-2.png" id="compare-with-inbuilt-sklearn-kmeans" width="1333" height="567" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-8-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="evaluate-different-clusters" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test different values of K</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>K_values <span class="op">=</span> <span class="bu">range</span>(<span class="dv">2</span>, <span class="dv">8</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>wcss_values <span class="op">=</span> []  <span class="co"># Within-cluster sum of squares</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>silhouette_values <span class="op">=</span> []</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> K_values:</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Custom implementation</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    kmeans <span class="op">=</span> KMeansCustom(n_clusters<span class="op">=</span>k, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    kmeans.fit(X_scaled)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate metrics</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    wcss <span class="op">=</span> kmeans.inertia_</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    wcss_values.append(wcss)</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Silhouette score (using sklearn for consistency)</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> k <span class="op">&gt;</span> <span class="dv">1</span>:  <span class="co"># Silhouette score requires at least 2 clusters</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        silhouette <span class="op">=</span> silhouette_score(X_scaled, kmeans.labels_)</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>        silhouette_values.append(silhouette)</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"K=</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">: WCSS=</span><span class="sc">{</span>wcss<span class="sc">:.2f}</span><span class="ss">, Silhouette=</span><span class="sc">{</span>silhouette<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-8" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>K_values <span class="op">=</span> <span class="bu">range</span>(<span class="dv">2</span>, <span class="dv">8</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>wcss_values <span class="op">=</span> []  <span class="co"># Within-cluster sum of squares</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>silhouette_values <span class="op">=</span> []</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> K_values:</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Custom implementation</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    kmeans <span class="op">=</span> KMeansCustom(n_clusters<span class="op">=</span>k, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    kmeans.fit(X_scaled)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate metrics</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    wcss <span class="op">=</span> kmeans.inertia_</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    wcss_values.append(wcss)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Silhouette score (using sklearn for consistency)</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> k <span class="op">&gt;</span> <span class="dv">1</span>:  <span class="co"># Silhouette score requires at least 2 clusters</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>        silhouette <span class="op">=</span> silhouette_score(X_scaled, kmeans.labels_)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        silhouette_values.append(silhouette)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"K=</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">: WCSS=</span><span class="sc">{</span>wcss<span class="sc">:.2f}</span><span class="ss">, Silhouette=</span><span class="sc">{</span>silhouette<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Converged after 6 iterations
 K=2: WCSS=243.17, Silhouette=0.539
@@ -543,56 +515,55 @@ Converged after 20 iterations
 K=7: WCSS=68.75, Silhouette=0.372</code></pre>
 </div>
 </div>
-<div id="cell-model-selection" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create subplots for both metrics</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>))</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 1: WCSS (Elbow Method)</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ax1.plot(K_values, wcss_values, marker<span class="op">=</span><span class="st">'o'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">10</span>, color<span class="op">=</span><span class="st">'darkblue'</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Number of Clusters (K)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Within-Cluster Sum of Squares'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Elbow Method for Optimal K'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>ax1.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Mark the "elbow" (using a simple heuristic)</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>diffs <span class="op">=</span> np.diff(wcss_values)</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>diffs2 <span class="op">=</span> np.diff(diffs)</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>elbow_idx <span class="op">=</span> np.argmax(diffs2) <span class="op">+</span> <span class="dv">2</span>  <span class="co"># +2 because of double differencing</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>ax1.axvline(x<span class="op">=</span>K_values[elbow_idx], color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>ax1.annotate(<span class="ss">f'Elbow at K=</span><span class="sc">{</span>K_values[elbow_idx]<span class="sc">}</span><span class="ss">'</span>, </span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>            xy<span class="op">=</span>(K_values[elbow_idx], wcss_values[elbow_idx]),</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>            xytext<span class="op">=</span>(K_values[elbow_idx] <span class="op">+</span> <span class="fl">0.5</span>, wcss_values[elbow_idx] <span class="op">+</span> <span class="dv">50</span>),</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>            arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">'-&gt;'</span>, color<span class="op">=</span><span class="st">'red'</span>),</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">12</span>, color<span class="op">=</span><span class="st">'red'</span>)</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 2: Silhouette Score</span></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>ax2.plot(K_values, silhouette_values, marker<span class="op">=</span><span class="st">'s'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">10</span>, color<span class="op">=</span><span class="st">'darkgreen'</span>)</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Number of Clusters (K)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Silhouette Score'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Silhouette Score for Different K'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>ax2.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Mark the maximum silhouette score</span></span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>max_silhouette_idx <span class="op">=</span> np.argmax(silhouette_values)</span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>optimal_k_silhouette <span class="op">=</span> K_values[max_silhouette_idx]</span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>ax2.axvline(x<span class="op">=</span>optimal_k_silhouette, color<span class="op">=</span><span class="st">'green'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>ax2.annotate(<span class="ss">f'Max at K=</span><span class="sc">{</span>optimal_k_silhouette<span class="sc">}</span><span class="ss">'</span>, </span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>            xy<span class="op">=</span>(optimal_k_silhouette, silhouette_values[max_silhouette_idx]),</span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>            xytext<span class="op">=</span>(optimal_k_silhouette <span class="op">+</span> <span class="fl">0.5</span>, silhouette_values[max_silhouette_idx] <span class="op">-</span> <span class="fl">0.05</span>),</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>            arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">'-&gt;'</span>, color<span class="op">=</span><span class="st">'green'</span>),</span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">12</span>, color<span class="op">=</span><span class="st">'green'</span>)</span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-9" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>))</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 1: WCSS (Elbow Method)</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>ax1.plot(K_values, wcss_values, marker<span class="op">=</span><span class="st">'o'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">10</span>, color<span class="op">=</span><span class="st">'darkblue'</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Number of Clusters (K)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Within-Cluster Sum of Squares'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Elbow Method for Optimal K'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>ax1.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Mark the "elbow" (using a simple heuristic)</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>diffs <span class="op">=</span> np.diff(wcss_values)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>diffs2 <span class="op">=</span> np.diff(diffs)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>elbow_idx <span class="op">=</span> np.argmax(diffs2) <span class="op">+</span> <span class="dv">2</span>  <span class="co"># +2 because of double differencing</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>ax1.axvline(x<span class="op">=</span>K_values[elbow_idx], color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>ax1.annotate(<span class="ss">f'Elbow at K=</span><span class="sc">{</span>K_values[elbow_idx]<span class="sc">}</span><span class="ss">'</span>, </span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>            xy<span class="op">=</span>(K_values[elbow_idx], wcss_values[elbow_idx]),</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>            xytext<span class="op">=</span>(K_values[elbow_idx] <span class="op">+</span> <span class="fl">0.5</span>, wcss_values[elbow_idx] <span class="op">+</span> <span class="dv">50</span>),</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>            arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">'-&gt;'</span>, color<span class="op">=</span><span class="st">'red'</span>),</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">12</span>, color<span class="op">=</span><span class="st">'red'</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 2: Silhouette Score</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>ax2.plot(K_values, silhouette_values, marker<span class="op">=</span><span class="st">'s'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">10</span>, color<span class="op">=</span><span class="st">'darkgreen'</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Number of Clusters (K)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Silhouette Score'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Silhouette Score for Different K'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>ax2.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Mark the maximum silhouette score</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>max_silhouette_idx <span class="op">=</span> np.argmax(silhouette_values)</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>optimal_k_silhouette <span class="op">=</span> K_values[max_silhouette_idx]</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>ax2.axvline(x<span class="op">=</span>optimal_k_silhouette, color<span class="op">=</span><span class="st">'green'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>ax2.annotate(<span class="ss">f'Max at K=</span><span class="sc">{</span>optimal_k_silhouette<span class="sc">}</span><span class="ss">'</span>, </span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>            xy<span class="op">=</span>(optimal_k_silhouette, silhouette_values[max_silhouette_idx]),</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>            xytext<span class="op">=</span>(optimal_k_silhouette <span class="op">+</span> <span class="fl">0.5</span>, silhouette_values[max_silhouette_idx] <span class="op">-</span> <span class="fl">0.05</span>),</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>            arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">'-&gt;'</span>, color<span class="op">=</span><span class="st">'green'</span>),</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">12</span>, color<span class="op">=</span><span class="st">'green'</span>)</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/model-selection-output-1.png" id="model-selection" width="1335" height="565" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-clustering-results" class="cell" data-execution_count="10">
+<div id="cell-10" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show clustering results for all K values</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">10</span>))</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>axes <span class="op">=</span> axes.ravel()</span>
@@ -636,12 +607,12 @@ Converged after 20 iterations</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/clustering-results-output-2.png" id="clustering-results" width="1429" height="944" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-11-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="analysis-and-interpretation" class="cell" data-execution_count="11">
+<div id="cell-11" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">### Clustering Analysis Summary ###"</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">1. Elbow Method suggests K = </span><span class="sc">{</span>K_values[elbow_idx]<span class="sc">}</span><span class="ss"> clusters"</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"2. Silhouette Score suggests K = </span><span class="sc">{</span>optimal_k_silhouette<span class="sc">}</span><span class="ss"> clusters"</span>)</span>
@@ -688,7 +659,7 @@ Cluster 1:
   Flipper Length Std: 10.4 mm</code></pre>
 </div>
 </div>
-<div id="summary-and-conclusions" class="cell" data-execution_count="12">
+<div id="cell-12" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">### Summary ###"</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"1. Successfully implemented K-means clustering algorithm from scratch"</span>)</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"2. The algorithm correctly identifies clusters through iterative optimization"</span>)</span>
@@ -714,11 +685,7 @@ Cluster 1:
 - The iterative nature of K-means is clearly visible in the algorithm visualization</code></pre>
 </div>
 </div>
-</section>
-<section id="a.-k-nearest-neighbors" class="level2">
-<h2 class="anchored" data-anchor-id="a.-k-nearest-neighbors">2a. K Nearest Neighbors</h2>
-<p>In this section, I implement the K-Nearest Neighbors (KNN) algorithm from scratch and evaluate its performance on a synthetic binary classification dataset with a non-linear decision boundary. KNN is a simple yet powerful non-parametric algorithm that makes predictions based on the majority class of the k nearest neighbors in the feature space.</p>
-<div id="generate-synthetic-dataset" class="cell" data-execution_count="13">
+<div id="cell-14" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -763,7 +730,7 @@ Name: count, dtype: int64
 Class balance: 51.0% positive class</code></pre>
 </div>
 </div>
-<div id="cell-Visualise-training-data-with-decision-boundary" class="cell" data-execution_count="14">
+<div id="cell-15" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create figure with the wiggly boundary</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -796,12 +763,12 @@ Class balance: 51.0% positive class</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/visualise-training-data-with-decision-boundary-output-1.png" id="visualise-training-data-with-decision-boundary" width="951" height="757" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="generate-test-dataset" class="cell" data-execution_count="15">
+<div id="cell-16" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate test data with different seed</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">123</span>)  <span class="co"># Different seed for test data</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -837,7 +804,7 @@ Name: count, dtype: int64
 Class balance: 52.0% positive class</code></pre>
 </div>
 </div>
-<div id="implement-knn-algorithm-from-scratch" class="cell" data-execution_count="16">
+<div id="cell-17" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> euclidean_distance(x1, x2):</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate Euclidean distance between two points."""</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sqrt(np.<span class="bu">sum</span>((x1 <span class="op">-</span> x2)<span class="op">**</span><span class="dv">2</span>))</span>
@@ -903,12 +870,12 @@ Class balance: 52.0% positive class</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Manual KNN implementation (k=5):
-Time taken: 0.0268 seconds
+Time taken: 0.0403 seconds
 Predictions shape: (100,)
 Accuracy: 0.9200</code></pre>
 </div>
 </div>
-<div id="cell-Verifying-implementation-with-sklearn" class="cell" data-execution_count="17">
+<div id="cell-18" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare with sklearn's implementation</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>knn_sklearn <span class="op">=</span> KNeighborsClassifier(n_neighbors<span class="op">=</span>k_test)</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>start_time <span class="op">=</span> time.time()</span>
@@ -954,7 +921,7 @@ Accuracy: 0.9200</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Sklearn KNN implementation (k=5):
-Time taken: 0.0051 seconds
+Time taken: 0.0087 seconds
 Accuracy: 0.9200
 
 Prediction agreement: 100/100 (100.0%)</code></pre>
@@ -962,12 +929,12 @@ Prediction agreement: 100/100 (100.0%)</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/verifying-implementation-with-sklearn-output-2.png" id="verifying-implementation-with-sklearn" width="1333" height="563" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-18-output-2.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="performance-evaluation" class="cell" data-execution_count="18">
+<div id="cell-19" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test for k values from 1 to 30</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>k_values <span class="op">=</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">31</span>)</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>accuracies <span class="op">=</span> []</span>
@@ -1008,49 +975,48 @@ Optimal k value: 1
 Maximum test accuracy: 0.9500</code></pre>
 </div>
 </div>
-<div id="cell-Accuracy-by-choice-of-k" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create accuracy plot</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">7</span>))</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot both training and test accuracies</span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>plt.plot(k_values, train_accuracies, <span class="st">'b-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, </span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">'Training Accuracy'</span>, marker<span class="op">=</span><span class="st">'o'</span>, markersize<span class="op">=</span><span class="dv">4</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>plt.plot(k_values, accuracies, <span class="st">'r-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, </span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">'Test Accuracy'</span>, marker<span class="op">=</span><span class="st">'s'</span>, markersize<span class="op">=</span><span class="dv">4</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Highlight optimal k</span></span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>plt.scatter(optimal_k, optimal_accuracy, color<span class="op">=</span><span class="st">'green'</span>, s<span class="op">=</span><span class="dv">200</span>, </span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>            zorder<span class="op">=</span><span class="dv">5</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>plt.annotate(<span class="ss">f'Optimal k=</span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ch">\n</span><span class="ss">Accuracy=</span><span class="sc">{</span>optimal_accuracy<span class="sc">:.3f}</span><span class="ss">'</span>, </span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>             xy<span class="op">=</span>(optimal_k, optimal_accuracy),</span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>             xytext<span class="op">=</span>(optimal_k <span class="op">+</span> <span class="dv">2</span>, optimal_accuracy <span class="op">-</span> <span class="fl">0.03</span>),</span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>             arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">'-&gt;'</span>, color<span class="op">=</span><span class="st">'green'</span>, linewidth<span class="op">=</span><span class="dv">2</span>),</span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>             fontsize<span class="op">=</span><span class="dv">12</span>, color<span class="op">=</span><span class="st">'green'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>,</span>
-<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>             bbox<span class="op">=</span><span class="bu">dict</span>(boxstyle<span class="op">=</span><span class="st">"round,pad=0.3"</span>, facecolor<span class="op">=</span><span class="st">"yellow"</span>, alpha<span class="op">=</span><span class="fl">0.3</span>))</span>
-<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'k (Number of Neighbors)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Accuracy'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'KNN Performance: Accuracy vs Number of Neighbors'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">'best'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">0</span>, <span class="dv">31</span>)</span>
-<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="fl">0.5</span>, <span class="fl">1.02</span>)</span>
-<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Add shaded region showing overfitting vs underfitting</span></span>
-<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>plt.axvspan(<span class="dv">1</span>, <span class="dv">5</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'Potential Overfitting'</span>)</span>
-<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>plt.axvspan(<span class="dv">20</span>, <span class="dv">30</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'Potential Underfitting'</span>)</span>
-<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-20" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">7</span>))</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot both training and test accuracies</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>plt.plot(k_values, train_accuracies, <span class="st">'b-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, </span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">'Training Accuracy'</span>, marker<span class="op">=</span><span class="st">'o'</span>, markersize<span class="op">=</span><span class="dv">4</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>plt.plot(k_values, accuracies, <span class="st">'r-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, </span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">'Test Accuracy'</span>, marker<span class="op">=</span><span class="st">'s'</span>, markersize<span class="op">=</span><span class="dv">4</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Highlight optimal k</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>plt.scatter(optimal_k, optimal_accuracy, color<span class="op">=</span><span class="st">'green'</span>, s<span class="op">=</span><span class="dv">200</span>, </span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>            zorder<span class="op">=</span><span class="dv">5</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>plt.annotate(<span class="ss">f'Optimal k=</span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ch">\n</span><span class="ss">Accuracy=</span><span class="sc">{</span>optimal_accuracy<span class="sc">:.3f}</span><span class="ss">'</span>, </span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>             xy<span class="op">=</span>(optimal_k, optimal_accuracy),</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>             xytext<span class="op">=</span>(optimal_k <span class="op">+</span> <span class="dv">2</span>, optimal_accuracy <span class="op">-</span> <span class="fl">0.03</span>),</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>             arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">'-&gt;'</span>, color<span class="op">=</span><span class="st">'green'</span>, linewidth<span class="op">=</span><span class="dv">2</span>),</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>             fontsize<span class="op">=</span><span class="dv">12</span>, color<span class="op">=</span><span class="st">'green'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>,</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>             bbox<span class="op">=</span><span class="bu">dict</span>(boxstyle<span class="op">=</span><span class="st">"round,pad=0.3"</span>, facecolor<span class="op">=</span><span class="st">"yellow"</span>, alpha<span class="op">=</span><span class="fl">0.3</span>))</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'k (Number of Neighbors)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Accuracy'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'KNN Performance: Accuracy vs Number of Neighbors'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">'best'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">0</span>, <span class="dv">31</span>)</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="fl">0.5</span>, <span class="fl">1.02</span>)</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Add shaded region showing overfitting vs underfitting</span></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>plt.axvspan(<span class="dv">1</span>, <span class="dv">5</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'Potential Overfitting'</span>)</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>plt.axvspan(<span class="dv">20</span>, <span class="dv">30</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'Potential Underfitting'</span>)</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/accuracy-by-choice-of-k-output-1.png" id="accuracy-by-choice-of-k" width="1143" height="661" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-Different-decision-boundaries" class="cell" data-execution_count="20">
+<div id="cell-21" class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_decision_boundary(X_train, y_train, k, ax, title):</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Plot decision boundary for KNN with given k."""</span></span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create mesh</span></span>
@@ -1097,52 +1063,47 @@ Maximum test accuracy: 0.9500</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="hw4_questions_files/figure-html/different-decision-boundaries-output-1.png" id="different-decision-boundaries" width="1429" height="944" class="figure-img"></p>
+<p><img src="hw4_questions_mgta495_files/figure-html/cell-21-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="analyze-the-behavior-of-accuracy-with-k" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">### Analysis of Results ###"</span>)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Find k values with top 5 accuracies</span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>top_k_indices <span class="op">=</span> np.argsort(accuracies)[<span class="op">-</span><span class="dv">5</span>:][::<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Top 5 k values by test accuracy:"</span>)</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, idx <span class="kw">in</span> <span class="bu">enumerate</span>(top_k_indices):</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">. k=</span><span class="sc">{</span>k_values[idx]<span class="sc">:2d}</span><span class="ss">: Accuracy = </span><span class="sc">{</span>accuracies[idx]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze stability of accuracy around optimal k</span></span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>k_window <span class="op">=</span> <span class="dv">2</span></span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>optimal_idx <span class="op">=</span> optimal_k <span class="op">-</span> <span class="dv">1</span>  <span class="co"># Convert to 0-based index</span></span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>window_start <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, optimal_idx <span class="op">-</span> k_window)</span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>window_end <span class="op">=</span> <span class="bu">min</span>(<span class="bu">len</span>(accuracies), optimal_idx <span class="op">+</span> k_window <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>window_accuracies <span class="op">=</span> accuracies[window_start:window_end]</span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>stability <span class="op">=</span> np.std(window_accuracies)</span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Stability analysis around optimal k=</span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ss">:"</span>)</span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy std in window [</span><span class="sc">{</span>optimal_k<span class="op">-</span>k_window<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>optimal_k<span class="op">+</span>k_window<span class="sc">}</span><span class="ss">]: </span><span class="sc">{</span>stability<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Average accuracy in window: </span><span class="sc">{</span>np<span class="sc">.</span>mean(window_accuracies)<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Bias-variance tradeoff discussion</span></span>
-<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">### Bias-Variance Tradeoff ###"</span>)</span>
-<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"k=1  accuracy: </span><span class="sc">{</span>accuracies[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss"> (Low bias, high variance)"</span>)</span>
-<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"k=</span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ss"> accuracy: </span><span class="sc">{</span>optimal_accuracy<span class="sc">:.4f}</span><span class="ss"> (Optimal tradeoff)"</span>)</span>
-<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"k=30 accuracy: </span><span class="sc">{</span>accuracies[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss"> (High bias, low variance)"</span>)</span>
-<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">### Summary ###"</span>)</span>
-<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"1. Successfully implemented KNN algorithm from scratch"</span>)</span>
-<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"2. Implementation verified against sklearn (&gt;</span><span class="sc">{</span>(np.<span class="bu">sum</span>(y_pred_manual <span class="op">==</span> y_pred_sklearn)<span class="op">/</span><span class="bu">len</span>(y_test)<span class="op">*</span><span class="dv">100</span>)<span class="sc">:.0f}</span><span class="ss">% agreement)"</span>)</span>
-<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"3. Optimal k value: </span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ss"> with test accuracy of </span><span class="sc">{</span>optimal_accuracy<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"4. The non-linear decision boundary is well-captured by KNN with appropriate k"</span>)</span>
-<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Key observations:"</span>)</span>
-<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"- Small k values (1-3) show signs of overfitting with jagged decision boundaries"</span>)</span>
-<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"- Large k values (&gt;20) show signs of underfitting with overly smooth boundaries"</span>)</span>
-<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"- The optimal k=</span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ss"> provides a good balance between bias and variance"</span>)</span>
-<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"- The wiggly sin-based boundary is effectively learned by the non-parametric KNN approach"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-22" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>top_k_indices <span class="op">=</span> np.argsort(accuracies)[<span class="op">-</span><span class="dv">5</span>:][::<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Top 5 k values by test accuracy:"</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, idx <span class="kw">in</span> <span class="bu">enumerate</span>(top_k_indices):</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">. k=</span><span class="sc">{</span>k_values[idx]<span class="sc">:2d}</span><span class="ss">: Accuracy = </span><span class="sc">{</span>accuracies[idx]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze stability of accuracy around optimal k</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>k_window <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>optimal_idx <span class="op">=</span> optimal_k <span class="op">-</span> <span class="dv">1</span>  <span class="co"># Convert to 0-based index</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>window_start <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, optimal_idx <span class="op">-</span> k_window)</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>window_end <span class="op">=</span> <span class="bu">min</span>(<span class="bu">len</span>(accuracies), optimal_idx <span class="op">+</span> k_window <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>window_accuracies <span class="op">=</span> accuracies[window_start:window_end]</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>stability <span class="op">=</span> np.std(window_accuracies)</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Stability analysis around optimal k=</span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ss">:"</span>)</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy std in window [</span><span class="sc">{</span>optimal_k<span class="op">-</span>k_window<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>optimal_k<span class="op">+</span>k_window<span class="sc">}</span><span class="ss">]: </span><span class="sc">{</span>stability<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Average accuracy in window: </span><span class="sc">{</span>np<span class="sc">.</span>mean(window_accuracies)<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Bias-variance tradeoff discussion</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">### Bias-Variance Tradeoff ###"</span>)</span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"k=1  accuracy: </span><span class="sc">{</span>accuracies[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss"> (Low bias, high variance)"</span>)</span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"k=</span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ss"> accuracy: </span><span class="sc">{</span>optimal_accuracy<span class="sc">:.4f}</span><span class="ss"> (Optimal tradeoff)"</span>)</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"k=30 accuracy: </span><span class="sc">{</span>accuracies[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss"> (High bias, low variance)"</span>)</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">### Summary ###"</span>)</span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"1. Successfully implemented KNN algorithm from scratch"</span>)</span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"2. Implementation verified against sklearn (&gt;</span><span class="sc">{</span>(np.<span class="bu">sum</span>(y_pred_manual <span class="op">==</span> y_pred_sklearn)<span class="op">/</span><span class="bu">len</span>(y_test)<span class="op">*</span><span class="dv">100</span>)<span class="sc">:.0f}</span><span class="ss">% agreement)"</span>)</span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"3. Optimal k value: </span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ss"> with test accuracy of </span><span class="sc">{</span>optimal_accuracy<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"4. The non-linear decision boundary is well-captured by KNN with appropriate k"</span>)</span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Key observations:"</span>)</span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"- Small k values (1-3) show signs of overfitting with jagged decision boundaries"</span>)</span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"- Large k values (&gt;20) show signs of underfitting with overly smooth boundaries"</span>)</span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"- The optimal k=</span><span class="sc">{</span>optimal_k<span class="sc">}</span><span class="ss"> provides a good balance between bias and variance"</span>)</span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"- The wiggly sin-based boundary is effectively learned by the non-parametric KNN approach"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-### Analysis of Results ###
-
 Top 5 k values by test accuracy:
 1. k= 1: Accuracy = 0.9500
 2. k= 2: Accuracy = 0.9500
@@ -1174,7 +1135,6 @@ Key observations:
 </div>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
