@@ -1,5 +1,5 @@
 ---
-title: "Resume"
+title: "What do you do?"
 ---
 
-{{< pdf resume/Vidhi.pdf width=100% height=800 >}}
+

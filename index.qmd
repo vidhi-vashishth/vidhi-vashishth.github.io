@@ -1,13 +1,23 @@
 ---
-title: "Vidhi Vashishth"
-image: "images/myimage.JPG"
+title: "Who are you?"
+image: "images/myimage.jpg"
 about:
     template: jolla
     links:
       - icon: envelope
-        href: mailto:vivashishth@ucsd.edu
+        href: mailto:vidhi.vashishthvv@gmail.com
       - icon: linkedin
         href: https://www.linkedin.com/in/vidhi-vashishth/
+      - icon: twitter-x
+        href: https://x.com/vvidhi_vashisht  
 ---
 
-Here is a paragraph about me: Fighting for my job everyday against AI.
+Hello there 🙋🏻‍♀️, I’m Vidhi, currently immersed in designing learning tools and workflows for K-12 students in this ever-evolving age of AI. I hold degrees in Mathematics, Tech & Business Management, and (most recently) Business Analytics. I love diving into AI, data and anything ed-tech. Somewhere along the way, I have become a **pragmatic AI maximalist** (Basically, I am a firm believer in harnessing AI's superpowers - without letting it give me too many existential crises!)
+
+I spend a big chunk of my day exploring LLM capabilities, deep-diving into research papers and industry white papers, and tracking how these technologies might reshape not just our classrooms, but also the boardrooms, hospitals and maybe even our living rooms. Through this blog, I hope to share insights that can fit neatly into your life - because let’s be real, AI will soon knock everyone's doors (if it already hasn't).
+
+When I’m not buried in research or mapping out user journeys, I’m usually in the kitchen (trying very hard not to set off the smoke alarm) or reading about geopolitics - mostly so I have *something else* to worry about besides AIs taking over the planet.
+
+I don’t claim to have all the answers; I’m learning as I go, and I’d love for you to learn alongside me.
+
+If you ever want to chat about tech, learning design, or anything in between, drop a line 👇
