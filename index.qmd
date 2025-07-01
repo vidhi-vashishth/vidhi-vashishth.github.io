@@ -1,6 +1,6 @@
 ---
-title: "About Me"
-image: "images/myimage.jpg"
+title: "Hello there 🙋🏻‍♀️"
+image: "images/myiamge.jpg"
 about:
     template: jolla
     links:
@@ -12,7 +12,7 @@ about:
         href: https://x.com/vvidhi_vashisht  
 ---
 
-Hello there 🙋🏻‍♀️, I’m Vidhi, currently immersed in designing learning tools and workflows for K-12 students in this ever-evolving age of AI. I hold degrees in Mathematics, Tech & Business Management, and (most recently) Business Analytics. I love diving into AI, data and anything ed-tech. Somewhere along the way, I have become a **pragmatic AI maximalist** (Basically, I am a firm believer in harnessing AI's superpowers - without letting it give me too many existential crises!)
+I’m Vidhi, currently immersed in designing learning tools and workflows for K-12 students in this ever-evolving age of AI. I hold degrees in Mathematics, Tech & Business Management, and (most recently) Business Analytics. I love diving into AI, data and anything ed-tech. Somewhere along the way, I have become a **pragmatic AI maximalist** (Basically, I am a firm believer in harnessing AI's superpowers - without letting it give me too many existential crises!)
 
 I spend a big chunk of my day exploring LLM capabilities, deep-diving into research papers and industry white papers, and tracking how these technologies might reshape not just our classrooms, but also the boardrooms, hospitals and maybe even our living rooms. Through this blog, I hope to share insights that can fit neatly into your life - because let’s be real, AI will soon knock everyone's doors (if it already hasn't).
 

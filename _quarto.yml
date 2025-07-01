@@ -1,12 +1,15 @@
 project:
   type: website
   output-dir: docs
+  resources:
+    - "images/**"
 
 website:
   title: "Vidhi Vashishth"
   navbar:
     left:
-      - index.qmd
+      - href: index.qmd
+        text: "About Me"
       - resume.qmd
       - href: blog.qmd
         text: Thoughts
