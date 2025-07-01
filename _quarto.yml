@@ -3,14 +3,13 @@ project:
   output-dir: docs
 
 website:
-  title: "Vidhi's Website"
+  title: "Vidhi Vashishth"
   navbar:
     left:
-      - href: index.qmd
-        text: About
+      - index.qmd
       - resume.qmd
       - href: blog.qmd
-        text: Projects
+        text: Thoughts
 
 format:
   html:
