@@ -1,0 +1,21 @@
+---
+title: Research Explainers
+---
+
+# Research Explainers
+
+I read **two** research papers every week as part of my job—and let me tell you, it’s tough 🤯
+
+Those dense equations and jargon can make one feel like they need a PhD just to get the gist. 
+
+My goal here is to translate the science into plain English, so everyone can see what researchers are up to — and why it matters to everyone.
+
+Here's my favourite ones so far:
+
+::: columns
+::: {.column width="50%"}
+#### [He tricks me, he tricks me not - LLMs pass the Turing test](./llm-turing-test/)
+
+What's next, now that humans are unable to tell a machine from another human?
+:::
+:::

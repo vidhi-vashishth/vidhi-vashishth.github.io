@@ -1,8 +1,0 @@
----
-title: "My Thoughts"
-listing:
-    contents: blog
-    type: grid
-    sort: "date desc"
-    categories: false
----
