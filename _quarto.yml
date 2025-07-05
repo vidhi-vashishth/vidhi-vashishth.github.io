@@ -10,8 +10,9 @@ website:
     left:
       - href: index.qmd
         text: "About Me"
-      - resume.qmd
-      - href: blog.qmd
+      - href: resume.qmd
+        text: "What I do"
+      - href: thoughts/index.qmd
         text: Thoughts
 
 format:

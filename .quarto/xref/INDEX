@@ -53,5 +53,11 @@
   },
   "blog/post1/post.qmd": {
     "post.html": "a2a99bd9"
+  },
+  "thoughts/index.qmd": {
+    "index.html": "2f22e113"
+  },
+  "thoughts/research-explainers/index.qmd": {
+    "index.html": "e6c9d96d"
   }
 }
