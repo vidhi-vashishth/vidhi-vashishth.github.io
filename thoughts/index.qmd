@@ -2,22 +2,20 @@
 title: My Thoughts
 ---
 
-# My Thoughts
-
 There were too many, so I categorised them into folders. Pick what you like 😊
 
 ::: columns
-::: {.column width="33%"}
+::: {.column width="25%"}
 #### [📂 Research Explainers](./research-explainers/)
 
 Dense papers simplified — because research shouldn’t feel like rocket science.
 :::
-::: {.column width="33%"}
+::: {.column width="25%"}
 #### [📂 Personal Projects](./personal-projects/)
 
 These are the side-quests I’m on — ping me if you want to know more about any of these / want to join!
 :::
-::: {.column width="33%"}
+::: {.column width="25%"}
 #### [📂 This Month in AI](./this-month-in-ai/)
 
 Curation of my top 5–6 monthly reads in AI & LLM research and applications.
@@ -25,12 +23,12 @@ Curation of my top 5–6 monthly reads in AI & LLM research and applications.
 :::
 
 ::: columns
-::: {.column width="50%"}
+::: {.column width="25%"}
 #### [📂 Towards AI & Media Literacy](./towards-ai-media-literacy/)
 
 OECD is serious about this - so am I.
 :::
-::: {.column width="50%"}
+::: {.column width="25%"}
 #### [📂 Off-the-Beat](./off-the-beat/)
 
 Everything non-AI that sparks neural fires in my brain — quotes, books, and more.
