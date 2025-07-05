@@ -2,35 +2,19 @@
 title: My Thoughts
 ---
 
-There were too many, so I categorised them into folders. Pick what you like 😊
+There were too many, so I categorized them into folders. Pick what you like 😊
 
-::: columns
-::: {.column width="25%"}
-#### [📂 Research Explainers](./research-explainers/)
+1. 📂 **[Research Explainers](./research-explainers/)**  
+   Dense papers simplified — because research shouldn’t feel like rocket science.
 
-Dense papers simplified — because research shouldn’t feel like rocket science.
-:::
-::: {.column width="25%"}
-#### [📂 Personal Projects](./personal-projects/)
+2. 📂 **[Personal Projects](./personal-projects/)**  
+   Projects I have worked on / am currently working on — ping me if you want to know more or join!
 
-These are the side-quests I’m on — ping me if you want to know more about any of these / want to join!
-:::
-::: {.column width="25%"}
-#### [📂 This Month in AI](./this-month-in-ai/)
+3. 📂 **[This Month in AI](./this-month-in-ai/)**  
+  Curation of my monthly top reads in AI & LLM research and apps.
 
-Curation of my top 5–6 monthly reads in AI & LLM research and applications.
-:::
-:::
+4. 📂 **[Towards AI & Media Literacy](./towards-ai-media-literacy/)**  
+   What it really takes to be AI-literate and media-literate today.
 
-::: columns
-::: {.column width="25%"}
-#### [📂 Towards AI & Media Literacy](./towards-ai-media-literacy/)
-
-OECD is serious about this - so am I.
-:::
-::: {.column width="25%"}
-#### [📂 Off-the-Beat](./off-the-beat/)
-
-Everything non-AI that sparks neural fires in my brain — quotes, books, and more.
-:::
-:::
+5. 📂 **[Off-the-Beat](./off-the-beat/)**  
+   Everything non-AI that sparks little neural fires — quotes, books, and more.

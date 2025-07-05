@@ -2,8 +2,6 @@
 title: Research Explainers
 ---
 
-# Research Explainers
-
 I read **two** research papers every week as part of my job—and let me tell you, it’s tough 🤯
 
 Those dense equations and jargon can make one feel like they need a PhD just to get the gist. 
